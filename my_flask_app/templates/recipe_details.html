@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="recipe-details-container">
+    <div class="recipe-hero">
+        <div class="recipe-hero-content">
+            <h1 class="recipe-title">{{ recipe['RecipeName'] }}</h1>
+            <div class="recipe-meta">
+                <span><i class="fas fa-clock"></i> {{ recipe['TotalTimeInMins']|int }} mins</span>
+                <span><i class="fas fa-utensils"></i> {{ recipe['Servings'] }} servings</span>
+                <span><i class="fas fa-fire"></i> {{ recipe['Calories (kcal)'] }} calories(kcal)</span>
+            </div>
+        </div>
+        <img src="{{ recipe['images'] }}" alt="{{ recipe['RecipeName'] }}" class="recipe-hero-image">
+    </div>
+
+    <div class="recipe-content-wrapper">
+        <div class="recipe-main-content">
+            <div class="recipe-description">
+                <h2>About This Recipe</h2>
+                <p><b>Preperation Time: </b> {{ recipe['PrepTimeInMins']|int }} mins</p>
+                <p><b>Cooking Time: </b> {{ recipe['CookTimeInMins']|int }} mins</p>
+                <p><b>Total Time Taken: </b> {{ recipe['TotalTimeInMins']|int }} mins</p>
+                <p><b>Servings: </b> {{ recipe['Servings'] }} servings</p>
+                <p><b>Cuisine: </b> {{ recipe['Cuisine'] }} </p>
+                <p><b>Course: </b> {{ recipe['Course'] }} </p>
+                <p><b>Diet: </b> {{ recipe['Diet'] }} </p>
+            </div>
+            <div class="recipe-ingredients">
+                <h2>Ingredients</h2>
+                <!-- <ul class="ingredients-list">
+                    {% for ingredient in recipe.ingredients %}
+                    <li>
+                        <span class="ingredient-checkbox">
+                            <input type="checkbox" id="ingredient-{{ loop.index }}">
+                            <label for="ingredient-{{ loop.index }}">{{ ingredient }}</label>
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul> -->
+                <p>
+                    {{recipe['TranslatedIngredients']}}
+                </p>
+            </div>
+
+            <div class="recipe-instructions">
+                <h2>Instructions</h2>
+                <p>
+                    {{recipe['TranslatedInstructions']}}
+                </p>
+            </div>
+        </div>
+
+        <div class="recipe-sidebar">
+            <div class="recipe-card">
+                <div class="nutrition-info">
+                    <h3>Nutrition values in total dish</h3>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Calories</span>
+                            <span class="nutrition-value">{{ recipe['Calories (kcal)'] }} kcal</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Protein</span>
+                            <span class="nutrition-value">{{ recipe['Protein (g)'] }}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Carbs</span>
+                            <span class="nutrition-value">{{ recipe['Carbohydrates (g)'] }}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fat</span>
+                            <span class="nutrition-value">{{ recipe['Fats (g)'] }}g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recipe-actions">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Recipe
+                    </button>
+                </div>
+            </div>
+            <div class="recipe-card">
+                <div class="nutrition-info">
+                    <h3>Nutrition values per 100g</h3>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Calories</span>
+                            <span class="nutrition-value">{{ recipe['Calories (kcal).1'] }} kcal</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Protein</span>
+                            <span class="nutrition-value">{{ recipe['Protein (g).1'] }}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Carbs</span>
+                            <span class="nutrition-value">{{ recipe['Carbohydrates (g).1'] }}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fat</span>
+                            <span class="nutrition-value">{{ recipe['Fats (g).1'] }}g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recipe-actions">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Recipe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

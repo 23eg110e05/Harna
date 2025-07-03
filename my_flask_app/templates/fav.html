@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Favorites{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <header class="header">
+            <h1>Your Favourite Recipes <i class="fas fa-heart"></i></h1>
+        </header>
+
+        <section class="recommendations">
+            {% for index,row in favs.iterrows() %}
+                <div class="recipe-card">
+                    <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                        <div class="recipe-info">
+                            <span>
+                                <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                                mins
+                            </span>
+                            <span>
+                                <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                            </span>
+                        </div>
+                        <h4> Cuisine: {{row['Cuisine']}}</h4> 
+                        <h4>Diet: {{row['Diet']}}</h4>
+                        <div class="recipe-actions">
+                            <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                                <i class="fas fa-eye"></i> View Recipe
+                            </a>
+                            <a href="{{url_for('main.remove_from_favourites',id=row['Srno'])}}" class="btn-remove">
+                                <i class="fas fa-trash-alt"></i> Remove From Favourites
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+
+{% endblock %}

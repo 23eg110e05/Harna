@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <header class="header">
+        <h1>Discover Recipes</h1>
+    </header>
+    <div class="discover-element">
+        <h2>Lunch</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['Lunch'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="discover-element">
+        <h2>Snack</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['Snack'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="discover-element">      
+        <h2>Dinner</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['Dinner'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="discover-element">
+        <h2>South Indian Breakfast</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['South Indian Breakfast'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="discover-element">
+        <h2>North Indian Breakfast</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['North Indian Breakfast'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="discover-element">
+        <h2>Brunch</h2>
+        <div class="recommendations "> 
+            {% for index, row in recipes['Brunch'].iterrows() %}
+            <div class="recipe-card">
+                <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                <div class="recipe-content">
+                    <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                    <div class="recipe-info">
+                        <span>
+                            <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                            mins
+                        </span>
+                        <span>
+                            <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                        </span>
+                    </div>
+                    <div class="recipe-actions">
+                        <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                            <i class="fas fa-eye"></i> View Recipe
+                        </a>
+                        <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                            <i class="far fa-heart"></i> Add to Favorites
+                        </a>                    
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

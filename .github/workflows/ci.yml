@@ -1,0 +1,55 @@
+name: CI/CD Pipeline for Foodie Finder
+
+on:
+  push:
+    branches:
+      - min
+      - sree
+  pull_request:
+    branches:
+      - min
+      - sree
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🧪 Run Tests
+        run: pytest --disable-warnings --cov=my_flask_app tests/
+
+      - name: 📏 Check Code Quality (Linting)
+        run: |
+          pip install flake8 black
+          flake8 . --count --max-complexity=10 --max-line-length=88 --statistics
+          black . --check
+
+  # deploy:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/min'
+
+  #   steps:
+  #     - name: 📥 Checkout Repository
+  #       uses: actions/checkout@v3
+
+  #     - name: 🚀 Deploy to Heroku
+  #       env:
+  #         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+  #       run: |
+  #         heroku container:login
+  #         heroku container:push web --app foodie-finder-app
+  #         heroku container:release web --app foodie-finder-app

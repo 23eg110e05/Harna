@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Foodie Finder{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="../static/css/sidebar.css">
+</head>
+<body>
+    <div class="nav-sidebar">
+        <div class="nav-logo">
+            <i class="fas fa-utensils"></i>
+            <span>Foodie Finder</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{url_for('main.dish_finder')}}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{url_for('main.discover')}}" class="nav-link">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{url_for('main.favourites')}}" class="nav-link">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorites</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{url_for('main.profile')}}" class="nav-link">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{url_for('auth.logout')}}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <button class="mobile-nav-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Mobile Navigation Toggle
+        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+        const navSidebar = document.querySelector('.nav-sidebar');
+        
+        mobileNavToggle.addEventListener('click', () => {
+            navSidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && 
+                !navSidebar.contains(e.target) && 
+                !mobileNavToggle.contains(e.target)) {
+                navSidebar.classList.remove('active');
+            }
+        });
+
+        // Set active nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === window.location.pathname) {
+                link.classList.add('active');
+            }
+        });
+        {% block scripts %}{% endblock %}
+    </script>
+    
+</body>
+</html> 

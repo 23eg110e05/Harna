@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            height: 100vh;
+            background-image: url("../static/home_bg.jpg");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            color: beige;
+        }
+        .info{
+            margin-left: 42vw;
+            margin-right: 2vw;
+            display: flex;
+            flex-direction: column;
+            /* align-items: center; */
+            /* justify-content: center; */
+        }
+        .title_div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .title {
+            font-family: 'Playfair Display', serif; 
+            color: burlywood;
+            font-size: 4rem;
+            text-align: center;
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); 
+            margin-bottom: 0px;
+        }
+        .tag{
+            color: beige;
+            font-size: 1rem;
+            margin-top: 0px;
+        }
+        .description{
+            font-size: 24px;
+            color: beige;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .reasons ul {
+            margin-top: 0px;
+            font-size: 24px;
+            list-style: none;
+            padding-left: 0;
+            color: beige;
+        }
+
+        .reasons li {
+            font-size: 24px;
+            margin: 12px 0;
+            padding-left: 30px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5L1 5.6l1.4-1.4L4 5.7 9.6.1 11 1.5z" fill="%23deb887"/></svg>') no-repeat left center;
+        }
+        .log{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-left: 100px;
+            margin-top: 20px;
+        }
+        .Ready{
+            font-size: 16px;
+            margin-left: 80px;
+            margin-bottom: 0px;
+        }
+        .startbutton {
+            font-size: 20px;
+            margin-top: 15px;
+            margin-left: 100px;
+            background-color:rgb(201, 84, 52);
+            color: white;
+            border-radius: 9px;
+            border: 2px solid black;
+            padding: 15px 50px;
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .startbutton:hover {
+            background-color: #ff0019;
+            color: white;
+        }
+
+        
+        .startbutton span {
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+        }
+
+        
+        .startbutton span:after {
+            content: '\00bb'; 
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.5s;
+        }
+
+        /* Move text on hover */
+        .startbutton:hover span {
+            padding-right: 25px;
+        }
+
+        .startbutton:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="info">
+        <div class="title_div">
+            <h1 class="title">
+                Foodie-Finder
+            </h1>
+            <h2 class="tag">
+                Recipe Recommendation System
+            </h2>
+        </div>
+        <p class="description">
+            Foodie-Finder turns your ingredients into delicious recipes effortlessly. Just enter what you have, and our smart system instantly suggests top-rated dishes you can make—no surveys, no endless scrolling, just great food fast!
+        </p>
+        <div class="reasons">
+            <ul>
+                <li>🍳 Recipes powered by your pantry</li>
+                <li>"Taste the tradition. Just tell us what’s in your kitchen."</li>
+                <li>⏱ Save time with smart ingredient substitution ideas</li>
+            </ul>
+        </div>
+        <div class="log">
+            <p class = "Ready">
+                Ready To Join? Click to Get Started
+            </p>
+            <a href="{{ url_for('auth.login') }}">
+                <button class="startbutton"><span>Get Started</span></button>
+            </a>
+        </div>
+
+    </div>
+  </body>
+</html>

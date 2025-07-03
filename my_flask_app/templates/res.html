@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Recommendations{% endblock %}
+
+{% block content %}
+<div class="container">
+<header class="header">
+    <h1>Your Personalized Recipe Recommendations</h1>
+</header>
+
+<div class="results-summary">
+    <div class="summary-card">
+        <i class="fas fa-carrot"></i>
+        <h3>Given Ingredients</h3>
+        <p>{{ user_ingredients }}</p>
+    </div>
+    <div class="summary-card">
+        <i class="fas fa-clock"></i>
+        <h3>Cooking Time Duration</h3>
+        <p>{% if cooking_time_filter == "all" %}
+            All durations
+        {% elif cooking_time_filter == "quick" %}
+            0-30 minutes
+        {% elif cooking_time_filter == "medium" %}
+            30-60 minutes
+        {% elif cooking_time_filter == "long" %}
+            60+ minutes
+        {% endif %}</p>
+    </div>
+</div>
+
+<section class="recommendations">
+    {% if not has_results %}
+        <div class="no-results-container">
+            <div class="no-results">
+                <i class="fas fa-search fa-4x no-results-icon"></i>
+                <h2>No matches found</h2>
+                <p class="no-results-message">We couldn't find any recipes matching your search for ingredients.</p>
+                <div class="tips-container">
+                    <h3>Try these suggestions:</h3>
+                    <ul class="tips-list">
+                        <li><i class="fas fa-check-circle"></i> Use fewer ingredients in your search</li>
+                        <li><i class="fas fa-check-circle"></i> Check your spelling</li>
+                        <li><i class="fas fa-check-circle"></i> Try more common ingredients</li>
+                    </ul>
+                </div>
+                <div class="no-results-action">
+                    <a href="/home" class="btn btn-primary">Try Another Search</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% if recipes.empty %}
+            <div class="no-results-container">
+                <div class="no-results">
+                    <i class="fas fa-search fa-4x no-results-icon"></i>
+                    <h2>No matches found</h2>
+                    <p class="no-results-message">We couldn't find any recipes matching your search for ingredients.</p>
+                    <div class="tips-container">
+                        <h3>Try these suggestions:</h3>
+                        <ul class="tips-list">
+                            <li><i class="fas fa-check-circle"></i> Use fewer ingredients in your search</li>
+                            <li><i class="fas fa-check-circle"></i> Check your spelling</li>
+                            <li><i class="fas fa-check-circle"></i> Try more common ingredients</li>
+                            <li><i class="fas fa-check-circle"></i> Search for one ingredient at a time</li>
+                        </ul>
+                    </div>
+                    <div class="no-results-action">
+                        <a href="/home" class="btn btn-primary">Try Another Search</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            {% for index, row in recipes.iterrows() %}
+                <div class="recipe-card">
+                    <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">{{row['RecipeName']}}</h3>
+                        <div class="recipe-info">
+                            <span>
+                                <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
+                                mins
+                            </span>
+                            <span>
+                                <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
+                            </span>
+                        </div>
+                        <div class="recipe-actions">
+                            <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
+                                <i class="fas fa-eye"></i> View Recipe
+                            </a>
+                            <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
+                                <i class="far fa-heart"></i> Add to Favorites
+                            </a>                    
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+</section>
+
+<div class="results-actions">
+    <button class="btn btn-secondary" onclick="window.location.href='/home'">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </button>
+</div>
+
+{% endblock %}
+ 

@@ -1,0 +1,83 @@
+:root {
+    --sidebar-width: 250px;
+    --card-bg: #ffffff;
+    --shadow: 2px 4px 6px rgba(211, 211, 211, 0.6);
+    --primary-color: #e66739;
+    --text-color: #333333;
+    --text-light: #666666;
+}
+
+ /* Navigation Styles */
+ .nav-sidebar {
+    width: var(--sidebar-width);
+    background: var(--card-bg);
+    background-color: bisque;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 2rem 0;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+}
+
+.nav-logo {
+    padding: 0 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-logo i {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+.nav-logo span, .nav-logo p {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-item {
+    margin-bottom: 0.5rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color);
+    background: rgba(108, 92, 231, 0.1);
+}
+
+.nav-link i {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: var(--primary-color);
+    border-radius: 0 4px 4px 0;
+}
