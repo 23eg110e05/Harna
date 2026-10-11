@@ -11,8 +11,6 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/signup')
 def signup():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dish_finder'))
     return render_template('signup.html')
 
 @auth.route('/signup', methods=['POST'])
@@ -80,8 +78,6 @@ def signup_post():
 
 @auth.route('/login')
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dish_finder'))
     return render_template('login.html')
 
 @auth.route('/login', methods=['POST'])

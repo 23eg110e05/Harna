@@ -1,0 +1,117 @@
+<!-- Ratvi Floating AI Culinary Companion Widget -->
+<div id="ratvi-widget" class="ratvi-widget" data-recipe-id="{{ recipe['Srno'] if recipe and recipe['Srno'] is defined else '' }}">
+  
+  <!-- Floating Action Button -->
+  <button id="ratvi-fab" class="ratvi-fab" aria-label="Open Ratvi Culinary Companion" aria-expanded="false" onclick="toggleRatviChat()">
+    <div class="ratvi-fab-avatar">👩‍🍳</div>
+    <span>Ask Ratvi</span>
+  </button>
+
+  <!-- Expandable Chat Panel -->
+  <div id="ratvi-chat-panel" class="ratvi-panel hidden" role="dialog" aria-labelledby="ratvi-title">
+    
+    <!-- Header -->
+    <div class="ratvi-header">
+      <div class="ratvi-header-title">
+        <div class="ratvi-fab-avatar" style="width:24px;height:24px;font-size:12px;">👩‍🍳</div>
+        <div>
+          <h4 id="ratvi-title">Ratvi <span style="font-size:10px;color:var(--harna-lime);font-weight:600;background:rgba(212,246,32,0.15);padding:1px 6px;border-radius:999px;">AI Chef</span></h4>
+          <div class="ratvi-header-tagline">Ingredients to Intelligence</div>
+        </div>
+      </div>
+      <button class="ratvi-close-btn" onclick="toggleRatviChat()" aria-label="Close Chat">✕</button>
+    </div>
+
+    <!-- Messages List -->
+    <div id="ratvi-messages" class="ratvi-messages" role="log" aria-live="polite">
+      <div class="ratvi-msg ratvi-msg-bot">
+        Hello! I'm <strong>Ratvi</strong>, your AI culinary companion. 👩‍🍳<br><br>
+        Ask me to <strong>scale ingredient portions</strong> for your guests, find <strong>smart ingredient substitutions</strong>, or guide you through step-by-step cooking!
+      </div>
+    </div>
+
+    <!-- Suggestion Chips Tray -->
+    <div id="ratvi-suggestion-chips" class="ratvi-chips">
+      <button class="ratvi-chip" onclick="sendRatviChip('Scale for 5 people')">👥 Scale for 5 people</button>
+      <button class="ratvi-chip" onclick="sendRatviChip('Substitute for butter')">🔄 Substitute for butter</button>
+      <button class="ratvi-chip" onclick="sendRatviChip('Show cooking steps')">📖 Cooking steps</button>
+    </div>
+
+    <!-- Message Input Bar -->
+    <form class="ratvi-input-bar" onsubmit="handleRatviSubmit(event)">
+      <input type="text" id="ratvi-input-field" class="ratvi-input" placeholder="Ask about servings, swaps, or steps..." autocomplete="off">
+      <button type="submit" class="ratvi-send-btn" aria-label="Send Message">
+        <i class="fas fa-paper-plane" style="font-size:12px;"></i>
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function toggleRatviChat() {
+    const panel = document.getElementById('ratvi-chat-panel');
+    const fab = document.getElementById('ratvi-fab');
+    if (panel) {
+      const isHidden = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', !isHidden);
+      fab.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      if (isHidden) {
+        document.getElementById('ratvi-input-field')?.focus();
+      }
+    }
+  }
+
+  function sendRatviChip(text) {
+    const input = document.getElementById('ratvi-input-field');
+    if (input) {
+      input.value = text;
+      handleRatviSubmit(new Event('submit'));
+    }
+  }
+
+  async function handleRatviSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('ratvi-input-field');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = '';
+    const messages = document.getElementById('ratvi-messages');
+
+    // Append User Message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'ratvi-msg ratvi-msg-user';
+    userDiv.textContent = msg;
+    messages.appendChild(userDiv);
+    messages.scrollTop = messages.scrollHeight;
+
+    // Detect Active Recipe Context
+    const widget = document.getElementById('ratvi-widget');
+    const recipeId = widget ? widget.getAttribute('data-recipe-id') : null;
+
+    // Fetch Ratvi AI Response
+    try {
+      const res = await fetch('/api/ratvi/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: msg,
+          recipe_id: recipeId ? parseInt(recipeId) : null
+        })
+      });
+      const data = await res.json();
+      
+      const botDiv = document.createElement('div');
+      botDiv.className = 'ratvi-msg ratvi-msg-bot';
+      botDiv.innerHTML = (data.reply || 'I am ready to help with your cooking!').replace(/\n/g, '<br>');
+      messages.appendChild(botDiv);
+      messages.scrollTop = messages.scrollHeight;
+    } catch (err) {
+      const errDiv = document.createElement('div');
+      errDiv.className = 'ratvi-msg ratvi-msg-bot';
+      errDiv.textContent = 'Ratvi is currently preparing recipes. Please try again.';
+      messages.appendChild(errDiv);
+    }
+  }
+</script>

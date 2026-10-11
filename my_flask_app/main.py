@@ -3,6 +3,7 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from my_flask_app.utils.preprocess import preprocess_user_ingredients
 from my_flask_app.utils.cache import cache
+from my_flask_app.utils.ratvi import ratvi
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import hstack
 import re
@@ -122,19 +123,22 @@ def results():
     return render_template('res.html', recipes=recommended_recipes, has_results=has_results, user_ingredients=user_ingredients, cooking_time_filter=cooking_time_filter)
 
 
-@main.route('/recipe_details/<int:id>', methods=['GET'])
+@main.route('/recipe_details/<id>', methods=['GET'])
 @login_required
 def recipe_details(id):
+    try:
+        numeric_id = float(id)
+    except Exception:
+        abort(404)
+
     if not cache._loaded:
         cache.load_models()
 
-    matches = cache.recipe_df[cache.recipe_df['Srno'] == id]
-    if matches.empty:
+    recipe = cache.get_recipe_by_id(numeric_id)
+    if not recipe:
         abort(404)
 
-    recipe = matches.iloc[0].to_dict()
     recipe['Instructions'] = safe_literal_eval(recipe.get('Instructions', ''))
-
     return render_template('recipe_details.html', recipe=recipe)
 
 
@@ -234,15 +238,65 @@ def home():
 
 
 # -------------------------------------------------------------
-# REST API ENDPOINTS (For Mobile, Sidecars & Integrations)
+# RATVI AI COMPANION API ENDPOINT
+# -------------------------------------------------------------
+
+@main.route('/api/ratvi/chat', methods=['POST'])
+def api_ratvi_chat():
+    """
+    Public AI Culinary Companion endpoint for Ratvi.
+    Supports serving scaling, culinary substitutions, step-by-step guidance, and hybrid fallback.
+    Accessible to guests and authenticated users.
+    """
+    data = request.get_json(silent=True) or request.form or {}
+    message = (data.get('message') or '').strip()
+    recipe_id = data.get('recipe_id')
+
+    if not message:
+        return jsonify({
+            'success': False,
+            'error': 'Message parameter is required',
+            'reply': "Please ask Ratvi a culinary question!"
+        }), 400
+
+    context = {}
+    if recipe_id is not None:
+        try:
+            rec_id_int = int(float(recipe_id))
+            recipe_obj = cache.get_recipe_by_id(rec_id_int)
+            if recipe_obj:
+                context['current_recipe'] = recipe_obj
+        except Exception:
+            pass
+
+    # Merge client-provided recipe_context if available
+    recipe_context = data.get('recipe_context')
+    if isinstance(recipe_context, dict):
+        if 'current_recipe' not in context:
+            context['current_recipe'] = {}
+        context['current_recipe'].update(recipe_context)
+
+    history = data.get('history', [])
+    current_step = int(data.get('current_step', 0) or 0)
+    options = data.get('options', {})
+
+    response_data = ratvi.process_chat(
+        message=message,
+        context=context,
+        history=history,
+        current_step=current_step,
+        options=options
+    )
+    
+    return jsonify(response_data)
+
+
+# -------------------------------------------------------------
+# RECIPE RECOMMENDATION & DETAIL REST API
 # -------------------------------------------------------------
 
 @main.route('/api/recommend', methods=['POST', 'GET'])
 def api_recommend():
-    """
-    JSON API for recipe recommendations.
-    Accepts: { "ingredients": "paneer, tomato", "cooking_time": "quick|medium|long|all", "limit": 6 }
-    """
     if request.method == 'POST':
         data = request.get_json(silent=True) or request.form
         ingredients = data.get('ingredients', '')
@@ -255,19 +309,28 @@ def api_recommend():
 
     if not ingredients.strip():
         return jsonify({
-            'success': False,
-            'error': 'Missing required parameter: ingredients',
-            'results': []
-        }), 400
+            'success': True,
+            'count': 0,
+            'query': {
+                'ingredients': ingredients,
+                'cooking_time': cooking_time
+            },
+            'results': [],
+            'recipes': []
+        }), 200
 
     results_df = compute_recipe_recommendations(ingredients, cooking_time, top_n=limit)
 
     if isinstance(results_df, pd.DataFrame) and not results_df.empty:
         records = results_df.to_dict(orient='records')
-        # Clean NaN values for valid JSON output
         for r in records:
-            for k, v in r.items():
-                if pd.isna(v):
+            if 'Srno' in r and r['Srno'] is not None and not pd.isna(r['Srno']):
+                try:
+                    r['Srno'] = int(float(r['Srno']))
+                except Exception:
+                    pass
+            for k, v in list(r.items()):
+                if not isinstance(v, (list, dict, tuple)) and pd.isna(v):
                     r[k] = None
         return jsonify({
             'success': True,
@@ -276,7 +339,8 @@ def api_recommend():
                 'ingredients': ingredients,
                 'cooking_time': cooking_time
             },
-            'results': records
+            'results': records,
+            'recipes': records
         })
 
     return jsonify({
@@ -286,23 +350,25 @@ def api_recommend():
             'ingredients': ingredients,
             'cooking_time': cooking_time
         },
-        'results': []
+        'results': [],
+        'recipes': []
     })
 
 
 @main.route('/api/recipes/<int:recipe_id>', methods=['GET'])
 def api_recipe_detail(recipe_id):
-    """
-    JSON API to fetch full recipe details by ID.
-    """
     recipe = cache.get_recipe_by_id(recipe_id)
     if not recipe:
         return jsonify({'success': False, 'error': f'Recipe ID {recipe_id} not found'}), 404
 
-    # Format instructions and clean NaN
     recipe['Instructions'] = safe_literal_eval(recipe.get('Instructions', ''))
-    for k, v in recipe.items():
-        if pd.isna(v):
+    if 'Srno' in recipe and recipe['Srno'] is not None and not pd.isna(recipe['Srno']):
+        try:
+            recipe['Srno'] = int(float(recipe['Srno']))
+        except Exception:
+            pass
+    for k, v in list(recipe.items()):
+        if not isinstance(v, (list, dict, tuple)) and pd.isna(v):
             recipe[k] = None
 
     return jsonify({
@@ -313,12 +379,9 @@ def api_recipe_detail(recipe_id):
 
 @main.route('/api/health', methods=['GET'])
 def api_health():
-    """
-    System health status endpoint.
-    """
     return jsonify({
         'status': 'healthy',
-        'service': 'Harna Recipe Intelligence',
+        'service': 'Harna Recipe Intelligence & Ratvi AI Companion',
         'models_cached': cache._loaded,
         'recipe_count': len(cache.recipe_df) if cache._loaded else 0
     })

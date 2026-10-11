@@ -50,7 +50,12 @@ class ModelCache:
     def get_recipe_by_id(self, recipe_id):
         if not self._loaded:
             self.load_models()
-        matches = self.recipe_df[self.recipe_df['Srno'] == recipe_id]
+        matches = self.recipe_df[(self.recipe_df['Srno'] == recipe_id) | (self.recipe_df['Srno'] == float(recipe_id))]
+        if matches.empty:
+            try:
+                matches = self.recipe_df[self.recipe_df['Srno'].astype(str).str.split('.').str[0] == str(recipe_id).split('.')[0]]
+            except Exception:
+                pass
         if matches.empty:
             return None
         return matches.iloc[0].to_dict()

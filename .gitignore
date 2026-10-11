@@ -1,0 +1,34 @@
+# Large data files - never commit
+data/raw/recipes_data.csv
+data/raw/*.csv
+
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Agent / AI tooling
+.agents/
+.gemini/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database files
+instance/*.db
+*.db
+*.sqlite3
+
+# Environment / secrets
+.env
+*.env.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

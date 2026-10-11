@@ -1,0 +1,261 @@
+/* ============================================================
+   RATVI — AI Culinary Companion Floating Chatbot Styles
+   Harna Palette: Deep Teal (#063238) & Electric Lime (#D4F620)
+   ============================================================ */
+
+/* Floating Action Button (FAB) */
+#ratvi-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 12px;
+  background: var(--harna-teal, #063238);
+  color: var(--harna-lime, #D4F620);
+  border: 1.5px solid var(--harna-lime, #D4F620);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(6, 50, 56, 0.35);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+#ratvi-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(6, 50, 56, 0.45);
+  background: #031E22;
+}
+
+#ratvi-fab:active {
+  transform: translateY(0);
+}
+
+.ratvi-fab-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--harna-lime, #D4F620);
+  color: var(--harna-teal, #063238);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Chat Drawer Panel */
+#ratvi-chat-panel {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 540px;
+  max-height: calc(100vh - 120px);
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid var(--border-light, #DEEAEC);
+  box-shadow: 0 16px 40px -10px rgba(6, 50, 56, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+#ratvi-chat-panel.hidden {
+  display: none !important;
+  opacity: 0;
+  transform: scale(0.95) translateY(10px);
+}
+
+/* Chat Header */
+.ratvi-header {
+  background: var(--harna-teal, #063238);
+  color: #FFFFFF;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ratvi-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ratvi-header-title h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ratvi-header-tagline {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 1px;
+}
+
+.ratvi-close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 150ms;
+}
+
+.ratvi-close-btn:hover {
+  color: var(--harna-lime, #D4F620);
+}
+
+/* Chat Message Area */
+.ratvi-messages {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  background: var(--bg-page, #F7FBFB);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ratvi-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.ratvi-msg-bot {
+  background: #FFFFFF;
+  color: var(--text-primary, #063238);
+  align-self: flex-start;
+  border: 1px solid var(--border-light, #DEEAEC);
+  border-bottom-left-radius: 3px;
+  box-shadow: 0 1px 3px rgba(6, 50, 56, 0.04);
+}
+
+.ratvi-msg-user {
+  background: var(--harna-teal, #063238);
+  color: #FFFFFF;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+
+/* Quick Suggestion Chips */
+.ratvi-chips {
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-light, #DEEAEC);
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.ratvi-chip {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-page, #F7FBFB);
+  color: var(--harna-teal, #063238);
+  border: 1px solid var(--border-mid, #CADADE);
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+.ratvi-chip:hover {
+  background: var(--harna-lime-subtle, rgba(212, 246, 32, 0.15));
+  border-color: var(--harna-teal, #063238);
+}
+
+/* Chat Input Bar */
+.ratvi-input-bar {
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-light, #DEEAEC);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ratvi-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light, #DEEAEC);
+  font-size: 12.5px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 150ms;
+}
+
+.ratvi-input:focus {
+  border-color: var(--harna-teal, #063238);
+}
+
+.ratvi-send-btn {
+  background: var(--harna-teal, #063238);
+  color: var(--harna-lime, #D4F620);
+  border: none;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.ratvi-send-btn:hover {
+  background: #031E22;
+}
+
+@media (max-width: 768px) {
+  #ratvi-chat-panel {
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: none;
+    bottom: 80px;
+    height: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  #ratvi-chat-panel {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    bottom: 74px;
+    height: 480px;
+  }
+}
+
+/* 4th-layer Defense: Strict Exclusion Guard on /profile */
+body.profile-page #ratvi-widget,
+body.profile-page #ratvi-fab,
+body.profile-page #ratvi-chat-panel,
+.profile-view #ratvi-widget {
+  display: none !important;
+}
+
