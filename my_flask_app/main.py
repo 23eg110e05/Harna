@@ -113,14 +113,21 @@ def results():
     if not user_ingredients:
         return redirect(url_for('main.dish_finder'))
 
-    recommended_recipes = compute_recipe_recommendations(user_ingredients, cooking_time_filter, top_n=6)
-    has_results = bool(len(recommended_recipes) > 0)
+    try:
+        recommended_recipes = compute_recipe_recommendations(user_ingredients, cooking_time_filter, top_n=6)
+        has_results = bool(len(recommended_recipes) > 0)
+    except Exception as e:
+        print(f"[Harna] Results error for '{user_ingredients}': {e}")
+        flash('Our recipe engine is warming up — please try again in a moment.', 'warning')
+        return redirect(url_for('main.dish_finder'))
 
     if not has_results:
         empty_recipes = pd.DataFrame()
-        return render_template('res.html', recipes=empty_recipes, has_results=False, user_ingredients=user_ingredients, cooking_time_filter=cooking_time_filter)
+        return render_template('res.html', recipes=empty_recipes, has_results=False,
+                               user_ingredients=user_ingredients, cooking_time_filter=cooking_time_filter)
 
-    return render_template('res.html', recipes=recommended_recipes, has_results=has_results, user_ingredients=user_ingredients, cooking_time_filter=cooking_time_filter)
+    return render_template('res.html', recipes=recommended_recipes, has_results=has_results,
+                           user_ingredients=user_ingredients, cooking_time_filter=cooking_time_filter)
 
 
 @main.route('/recipe_details/<id>', methods=['GET'])

@@ -19,6 +19,60 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ratvi-chat.css') }}">
   {% block head_extra %}{% endblock %}
+
+  <style>
+    /* Skeleton shimmer while recipe images load */
+    .recipe-card__image { background: #e8f0f1; }
+    .recipe-card__image-wrap { background: #e8f0f1; }
+  </style>
+
+  <script>
+    /* ── Harna Global Recipe Image Fallback ── */
+    /* Maps cuisine/keyword → beautiful Unsplash food photo */
+    const HARNA_IMG_POOL = {
+      indian:    'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80',
+      chicken:   'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80',
+      butter:    'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80',
+      paneer:    'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&q=80',
+      pizza:     'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80',
+      pasta:     'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&q=80',
+      biryani:   'https://images.unsplash.com/photo-1563379091339-03246963d96c?w=600&q=80',
+      rice:      'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=600&q=80',
+      soup:      'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80',
+      salad:     'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+      dessert:   'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=80',
+      cake:      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80',
+      bread:     'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&q=80',
+      fish:      'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80',
+      egg:       'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80',
+      dal:       'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80',
+      curry:     'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80',
+      noodle:    'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80',
+      sandwich:  'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=80',
+      default:   'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'
+    };
+
+    function harnaImgFallback(img) {
+      const alt = (img.alt || img.closest('article')?.querySelector('h3')?.textContent || '').toLowerCase();
+      let src = HARNA_IMG_POOL.default;
+      for (const [key, url] of Object.entries(HARNA_IMG_POOL)) {
+        if (alt.includes(key)) { src = url; break; }
+      }
+      img.onerror = null; // prevent infinite loop
+      img.src = src;
+    }
+
+    /* Apply fallback to ALL recipe images after DOM loads */
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('img.recipe-card__image, img.recipe-hero-img').forEach(function (img) {
+        img.onerror = function () { harnaImgFallback(this); };
+        /* Also check if already broken (cached 404) */
+        if (!img.complete || img.naturalWidth === 0) {
+          harnaImgFallback(img);
+        }
+      });
+    });
+  </script>
 </head>
 <body>
 
