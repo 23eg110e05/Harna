@@ -1,6 +1,6 @@
 <!-- Ratvi Floating AI Culinary Companion Widget -->
 <div id="ratvi-widget" class="ratvi-widget" data-recipe-id="{{ recipe['Srno'] if recipe and recipe['Srno'] is defined else '' }}">
-  
+
   <!-- Floating Action Button -->
   <button id="ratvi-fab" class="ratvi-fab" aria-label="Open Ratvi Culinary Companion" aria-expanded="false" onclick="toggleRatviChat()">
     <div class="ratvi-fab-avatar">👩‍🍳</div>
@@ -9,7 +9,7 @@
 
   <!-- Expandable Chat Panel -->
   <div id="ratvi-chat-panel" class="ratvi-panel hidden" role="dialog" aria-labelledby="ratvi-title">
-    
+
     <!-- Header -->
     <div class="ratvi-header">
       <div class="ratvi-header-title">
@@ -26,11 +26,11 @@
     <div id="ratvi-messages" class="ratvi-messages" role="log" aria-live="polite">
       <div class="ratvi-msg ratvi-msg-bot">
         Hello! I'm <strong>Ratvi</strong>, your AI culinary companion. 👩‍🍳<br><br>
-        Ask me to <strong>scale ingredient portions</strong> for your guests, find <strong>smart ingredient substitutions</strong>, or guide you through step-by-step cooking!
+        Ask me to <strong>scale portions</strong> for your guests, find <strong>smart substitutions</strong>, or walk you through <strong>step-by-step cooking</strong>!
       </div>
     </div>
 
-    <!-- Suggestion Chips Tray -->
+    <!-- Suggestion Chips -->
     <div id="ratvi-suggestion-chips" class="ratvi-chips">
       <button class="ratvi-chip" onclick="sendRatviChip('Scale for 5 people')">👥 Scale for 5 people</button>
       <button class="ratvi-chip" onclick="sendRatviChip('Substitute for butter')">🔄 Substitute for butter</button>
@@ -48,69 +48,123 @@
   </div>
 </div>
 
+<style>
+  /* Typing indicator dots */
+  .ratvi-typing { display: flex; align-items: center; gap: 4px; padding: 10px 14px !important; }
+  .ratvi-typing span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--harna-teal, #063238); opacity: 0.4;
+    animation: ratvi-bounce 1.2s infinite ease-in-out;
+  }
+  .ratvi-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .ratvi-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes ratvi-bounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  /* Markdown list styling inside chat */
+  .ratvi-msg ul.ratvi-list {
+    margin: 6px 0 6px 16px;
+    padding: 0;
+    list-style: disc;
+  }
+  .ratvi-msg ul.ratvi-list li { margin-bottom: 4px; line-height: 1.5; }
+  .ratvi-msg strong { font-weight: 700; }
+  .ratvi-msg em { font-style: italic; }
+</style>
+
 <script>
+  /* ── Ratvi lightweight markdown → HTML ── */
+  function ratviMd(text) {
+    if (!text) return '';
+    // Escape HTML first to prevent XSS
+    let t = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    return t
+      // Bold **text**
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic *text* (single asterisk, not double)
+      .replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+      // Inline code `text`
+      .replace(/`([^`]+)`/g, '<code style="background:rgba(6,50,56,0.08);padding:1px 5px;border-radius:4px;font-size:0.85em">$1</code>')
+      // Bullet list items (•, -, *)
+      .replace(/^[•\-]\s+(.+)$/gm, '<li>$1</li>')
+      // Numbered list items
+      .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+      // Wrap runs of <li> in <ul>
+      .replace(/((?:<li>.*?<\/li>\n?)+)/gs, '<ul class="ratvi-list">$1</ul>')
+      // Markdown links [text](url)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:var(--harna-teal,#063238);font-weight:700;text-decoration:underline;">$1</a>')
+      // Paragraph breaks
+      .replace(/\n{2,}/g, '<br><br>')
+      // Single line breaks
+      .replace(/\n/g, '<br>');
+  }
+
   function toggleRatviChat() {
     const panel = document.getElementById('ratvi-chat-panel');
-    const fab = document.getElementById('ratvi-fab');
-    if (panel) {
-      const isHidden = panel.classList.contains('hidden');
-      panel.classList.toggle('hidden', !isHidden);
-      fab.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-      if (isHidden) {
-        document.getElementById('ratvi-input-field')?.focus();
-      }
-    }
+    const fab   = document.getElementById('ratvi-fab');
+    if (!panel) return;
+    const isHidden = panel.classList.contains('hidden');
+    panel.classList.toggle('hidden', !isHidden);
+    fab.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    if (isHidden) document.getElementById('ratvi-input-field')?.focus();
   }
 
   function sendRatviChip(text) {
     const input = document.getElementById('ratvi-input-field');
-    if (input) {
-      input.value = text;
-      handleRatviSubmit(new Event('submit'));
-    }
+    if (input) { input.value = text; handleRatviSubmit(new Event('submit')); }
   }
 
   async function handleRatviSubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const input = document.getElementById('ratvi-input-field');
-    const msg = input.value.trim();
+    const input    = document.getElementById('ratvi-input-field');
+    const messages = document.getElementById('ratvi-messages');
+    const msg      = input.value.trim();
     if (!msg) return;
 
     input.value = '';
-    const messages = document.getElementById('ratvi-messages');
 
-    // Append User Message
+    // User bubble
     const userDiv = document.createElement('div');
-    userDiv.className = 'ratvi-msg ratvi-msg-user';
+    userDiv.className   = 'ratvi-msg ratvi-msg-user';
     userDiv.textContent = msg;
     messages.appendChild(userDiv);
     messages.scrollTop = messages.scrollHeight;
 
-    // Detect Active Recipe Context
-    const widget = document.getElementById('ratvi-widget');
-    const recipeId = widget ? widget.getAttribute('data-recipe-id') : null;
+    // Typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'ratvi-msg ratvi-msg-bot ratvi-typing';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    messages.appendChild(typingDiv);
+    messages.scrollTop = messages.scrollHeight;
 
-    // Fetch Ratvi AI Response
+    // Recipe context
+    const recipeId = document.getElementById('ratvi-widget')?.getAttribute('data-recipe-id');
+
     try {
-      const res = await fetch('/api/ratvi/chat', {
-        method: 'POST',
+      const res  = await fetch('/api/ratvi/chat', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          recipe_id: recipeId ? parseInt(recipeId) : null
-        })
+        body:    JSON.stringify({ message: msg, recipe_id: recipeId ? parseInt(recipeId) : null })
       });
       const data = await res.json();
-      
-      const botDiv = document.createElement('div');
-      botDiv.className = 'ratvi-msg ratvi-msg-bot';
-      botDiv.innerHTML = (data.reply || 'I am ready to help with your cooking!').replace(/\n/g, '<br>');
+      typingDiv.remove();
+
+      const botDiv      = document.createElement('div');
+      botDiv.className  = 'ratvi-msg ratvi-msg-bot';
+      botDiv.innerHTML  = ratviMd(data.reply || 'I am ready to help with your cooking! 👩‍🍳');
       messages.appendChild(botDiv);
       messages.scrollTop = messages.scrollHeight;
+
     } catch (err) {
-      const errDiv = document.createElement('div');
-      errDiv.className = 'ratvi-msg ratvi-msg-bot';
-      errDiv.textContent = 'Ratvi is currently preparing recipes. Please try again.';
+      typingDiv.remove();
+      const errDiv      = document.createElement('div');
+      errDiv.className  = 'ratvi-msg ratvi-msg-bot';
+      errDiv.textContent = 'Ratvi is warming up — please try again in a moment.';
       messages.appendChild(errDiv);
     }
   }

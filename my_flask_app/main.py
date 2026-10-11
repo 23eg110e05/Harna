@@ -23,65 +23,115 @@ def safe_literal_eval(val):
     except (ValueError, SyntaxError):
         return val
 
-def compute_recipe_recommendations(user_ingredients, cooking_time_filter='all', top_n=6, threshold=0.25):
+from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
+
+PANTRY_STAPLES = {
+    'salt', 'water', 'oil', 'sunflow', 'requir', 'cook', 'pepper', 'black', 'white',
+    'turmer', 'chilli', 'powder', 'cumin', 'seed', 'coriand', 'mustard', 'ghee',
+    'butter', 'asafoetida', 'sugar', 'hing', 'garam', 'masala', 'curri', 'leav',
+    'methi', 'fennel', 'clove', 'cinnamon', 'cardamom', 'ginger', 'garlic'
+}
+
+def compute_recipe_recommendations(user_ingredients, cooking_time_filter='all', top_n=6, threshold=0.15):
     """
-    Core reusable recommendation engine using the pre-cached in-memory models.
-    Executes in <15ms.
+    Pantry-first recipe recommendation engine.
+    Finds recipes based STRICTLY on the ingredients the user searched for.
+    Prioritizes recipes that can be made with ONLY the searched ingredients
+    (plus common kitchen staples like salt, pepper, oil, water, spices).
     """
     if not cache._loaded:
         cache.load_models()
 
-    ingredients_list = [ing.strip() for ing in user_ingredients.split(',') if ing.strip()]
-    if not ingredients_list:
+    raw_ingredients = [ing.strip().lower() for ing in user_ingredients.split(',') if ing.strip()]
+    if not raw_ingredients:
         return []
 
-    preprocessed_user_ingredients = preprocess_user_ingredients(user_ingredients)
-
-    vectorizer_name = cache.vectorizer_name
-    vectorizer_ing = cache.vectorizer_ing
-    tfidf_combined = cache.tfidf_combined
     recipe_df = cache.recipe_df
+    vec_ing = cache.vectorizer_ing
+    tfidf_ing = getattr(cache, 'tfidf_ingredients', None)
+    if tfidf_ing is None and vec_ing is not None:
+        tfidf_ing = vec_ing.transform(recipe_df['Ingredients_clean'].fillna(''))
+        cache.tfidf_ingredients = tfidf_ing
 
-    # Verify ingredient threshold to prevent false-positive matches
-    for ingredient in ingredients_list:
-        preprocessed_ingredient = preprocess_user_ingredients(ingredient)
-        if preprocessed_ingredient.strip():
-            ingredient_vector_name = vectorizer_name.transform([preprocessed_ingredient])
-            ingredient_vector_ing = vectorizer_ing.transform([preprocessed_ingredient])
-            ingredient_vector_combined = hstack([0.5 * ingredient_vector_name, 0.5 * ingredient_vector_ing])
-            ingredient_similarity = cosine_similarity(ingredient_vector_combined, tfidf_combined)
-            if ingredient_similarity.max() < threshold:
-                return []
+    user_ing_stems = []
+    all_user_stems = set()
+    cleaned_tokens = []
+    for ing in raw_ingredients:
+        cleaned = re.sub(r'[^a-z\s]', '', ing)
+        stems = {stemmer.stem(w) for w in cleaned.split() if len(w) > 1}
+        if stems:
+            user_ing_stems.append(stems)
+            all_user_stems.update(stems)
+            cleaned_tokens.extend(list(stems))
 
-    # Compute overall query similarity
-    user_query = preprocessed_user_ingredients
-    user_vector_name = vectorizer_name.transform([user_query])
-    user_vector_ing = vectorizer_ing.transform([user_query])
-    user_vector_combined = hstack([0.5 * user_vector_name, 0.5 * user_vector_ing])
-
-    similarity_scores = cosine_similarity(user_vector_combined, tfidf_combined)
-    scores = similarity_scores.flatten()
-
-    all_valid_indices = [idx for idx, score in enumerate(scores) if score >= threshold]
-    if not all_valid_indices:
+    total_user_ings = len(user_ing_stems)
+    if total_user_ings == 0:
         return []
 
-    recommended_df = recipe_df.iloc[all_valid_indices].copy()
-    recommended_df['Similarity'] = [scores[idx] for idx in all_valid_indices]
+    # 1. Candidate pre-filtering via ingredient TF-IDF matrix (<10ms)
+    q_vec = vec_ing.transform([' '.join(cleaned_tokens)])
+    sims = cosine_similarity(q_vec, tfidf_ing).flatten()
+    top_candidate_indices = [idx for idx in sims.argsort()[::-1][:300] if sims[idx] > 0.02]
+
+    candidates = []
+    for idx in top_candidate_indices:
+        row = recipe_df.iloc[idx]
+        ing_clean = str(row.get('Ingredients_clean', ''))
+        recipe_stems = set(ing_clean.split())
+
+        matched_count = sum(1 for ing_stem_set in user_ing_stems if ing_stem_set.intersection(recipe_stems))
+        if matched_count == 0:
+            continue
+
+        if total_user_ings >= 2 and matched_count < max(1, total_user_ings // 2):
+            continue
+
+        coverage = matched_count / total_user_ings
+        non_staples = recipe_stems - PANTRY_STAPLES
+        missing = non_staples - all_user_stems
+        missing_count = len(missing)
+
+        # Higher purity for recipes that require ONLY user-searched ingredients + staples
+        purity = 1.0 / (1.0 + (missing_count * 0.4))
+        score = (coverage * 0.60) + (purity * 0.40)
+
+        candidates.append({
+            'idx': idx,
+            'matched': matched_count,
+            'missing_count': missing_count,
+            'score': score
+        })
+
+    # Fallback: if user entered a dish name (e.g. 'biryani', 'pizza')
+    if not candidates:
+        name_mask = recipe_df['RecipeName'].str.contains(user_ingredients.strip(), case=False, na=False, regex=False)
+        name_indices = recipe_df[name_mask].index.tolist()[:top_n]
+        for idx in name_indices:
+            candidates.append({'idx': idx, 'matched': 1, 'missing_count': 0, 'score': 0.85})
+
+    if not candidates:
+        return []
+
+    candidates.sort(key=lambda x: (x['matched'], x['score'], -x['missing_count']), reverse=True)
+
+    candidate_df_indices = [c['idx'] for c in candidates]
+    candidate_scores = {c['idx']: c['score'] for c in candidates}
+
+    matched_df = recipe_df.iloc[candidate_df_indices].copy()
+    matched_df['Similarity'] = [candidate_scores[idx] for idx in candidate_df_indices]
 
     if cooking_time_filter != 'all':
         if cooking_time_filter == 'quick':
-            recommended_df = recommended_df[recommended_df['TotalTimeInMins'] <= 30]
+            matched_df = matched_df[matched_df['TotalTimeInMins'] <= 30]
         elif cooking_time_filter == 'medium':
-            recommended_df = recommended_df[
-                (recommended_df['TotalTimeInMins'] > 30) & (recommended_df['TotalTimeInMins'] <= 60)
+            matched_df = matched_df[
+                (matched_df['TotalTimeInMins'] > 30) & (matched_df['TotalTimeInMins'] <= 60)
             ]
         elif cooking_time_filter == 'long':
-            recommended_df = recommended_df[recommended_df['TotalTimeInMins'] > 60]
+            matched_df = matched_df[matched_df['TotalTimeInMins'] > 60]
 
-    recommended_df = recommended_df.sort_values(by='Similarity', ascending=False)
-    final_recipes = recommended_df.head(top_n).copy()
-
+    final_recipes = matched_df.head(top_n).copy()
     if not final_recipes.empty:
         final_recipes['Instructions'] = final_recipes['Instructions'].apply(safe_literal_eval)
 

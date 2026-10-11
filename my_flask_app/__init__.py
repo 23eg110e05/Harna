@@ -45,8 +45,10 @@ def create_app():
 
     # Pre-cache ML models and recipe database at startup
     from .utils.cache import cache
+    from .utils.ratvi import ratvi
     try:
         cache.load_models()
+        ratvi.set_recipe_df(cache.recipe_df)   # inject recipe data into Ratvi engine
     except Exception as e:
         print(f"[Harna Warning] Deferred model loading: {e}")
 

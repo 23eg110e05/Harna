@@ -78,6 +78,15 @@ class ModelCache:
             with open(os.path.join(processed_dir, "Recipes.pkl"), 'rb') as f:
                 self.recipe_df = pickle.load(f)
 
+            # Pre-compute ingredient-only TF-IDF matrix for ultra-fast pantry matching (<10ms)
+            try:
+                self.tfidf_ingredients = self.vectorizer_ing.transform(
+                    self.recipe_df['Ingredients_clean'].fillna('')
+                )
+            except Exception as ex:
+                self.tfidf_ingredients = None
+                print(f"[Harna Cache] Note: Deferred tfidf_ingredients transform: {ex}")
+
             self._loaded = True
             self._load_error = None
             print("[Harna Backend] ML Models & Recipe Dataframe successfully cached into memory.")

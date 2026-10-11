@@ -883,37 +883,142 @@ class RatviEngine:
                 }
 
         # 4. Shopping list / Meal planning
-        if any(w in msg for w in ['shopping list', 'grocery', 'meal plan']):
+        if any(w in msg for w in ['shopping list', 'grocery', 'meal plan', 'plan my meals', 'weekly meals']):
             reply = (
                 "To generate a consolidated shopping list:\n\n"
                 "1. Pick the recipes you plan to cook this week.\n"
                 "2. Tell me the number of people for each meal (e.g. *'Pasta for 4, Biryani for 6'*).\n"
                 "3. I will consolidate all quantities into standardized units to prevent food waste."
             )
-            return {
-                'success': True,
-                'reply': reply,
-                'intent': 'general_chat',
-                'type': 'general',
-                'engine_used': 'deterministic',
-                'data': {},
-                'suggestions': self._generate_suggestions('general_chat')
-            }
+            return {'success': True, 'reply': reply, 'intent': 'shopping_list',
+                    'type': 'general', 'engine_used': 'deterministic', 'data': {},
+                    'suggestions': self._generate_suggestions('general_chat')}
 
-        # 5. Default welcome / general culinary assistance
-        reply = (
-            "Hello! I am **Ratvi**, your AI Culinary Companion. 👩‍🍳\n\n"
-            "Here is how I can assist your cooking:\n"
-            "• **Scale Portions**: Tell me *'Scale for 6 people'* to dynamically adjust all ingredient measurements.\n"
-            "• **Smart Substitutions**: Ask *'Substitute for cream'* or *'replace eggs'*.\n"
-            "• **Step-by-Step Cooking**: Say *'Show cooking steps'* for hands-on instructions.\n"
-            "• **Recipe Search**: Tell me what you have in your fridge and I'll find what you can cook!"
-        )
+        # 5. Nutrition / calories
+        if any(w in msg for w in ['calorie', 'calories', 'protein', 'carb', 'nutrition', 'healthy', 'fat', 'fiber', 'kcal', 'diet']):
+            if recipe:
+                cal  = recipe.get('Calories (kcal)', 'N/A')
+                prot = recipe.get('Protein (g)', 'N/A')
+                carb = recipe.get('Carbohydrates (g)', 'N/A')
+                fat  = recipe.get('Fats (g)', 'N/A')
+                fib  = recipe.get('Fiber (g)', 'N/A')
+                name = recipe.get('RecipeName', 'this recipe')
+                reply = (
+                    f"**Nutrition for {name}** (per serving):\n\n"
+                    f"🔥 **Calories**: {cal} kcal\n"
+                    f"💪 **Protein**: {prot} g\n"
+                    f"🌾 **Carbs**: {carb} g\n"
+                    f"🧈 **Fats**: {fat} g\n"
+                    f"🌿 **Fiber**: {fib} g\n\n"
+                    f"Diet tag: **{recipe.get('Diet', 'N/A')}**"
+                )
+            else:
+                reply = (
+                    "Open a specific recipe first, then ask me for its nutrition info!\n\n"
+                    "I can show you exact calories, protein, carbs, fats and fiber per serving."
+                )
+            return {'success': True, 'reply': reply, 'intent': 'nutrition',
+                    'type': 'nutrition', 'engine_used': 'deterministic', 'data': {},
+                    'suggestions': ['Show cooking steps', 'Scale for 4 people', 'Substitute for butter']}
+
+        # 6. Greeting
+        if any(w in msg.split() for w in ['hello', 'hi', 'hey', 'hiya', 'namaste', 'morning', 'evening', 'sup', 'yo']) or msg in ['hi', 'hello', 'hey', 'namaste']:
+            name = recipe.get('RecipeName', '') if recipe else ''
+            ctx  = f" You're viewing **{name}** right now." if name else ''
+            reply = (
+                f"Hey there! 👩‍🍳 I'm **Ratvi**, your AI culinary companion!{ctx}\n\n"
+                "I can help you:\n"
+                "• **Scale portions** — *'Scale for 6 people'*\n"
+                "• **Find substitutes** — *'Substitute for butter'*\n"
+                "• **Walk through steps** — *'Show cooking steps'*\n"
+                "• **Find recipes** — *'Biryani'* or *'Egg and Onion'*\n\n"
+                "What would you like to cook today?"
+            )
+            return {'success': True, 'reply': reply, 'intent': 'greeting',
+                    'type': 'greeting', 'engine_used': 'deterministic', 'data': {},
+                    'suggestions': ['Scale for 4 people', 'Substitute for butter', 'Show cooking steps']}
+
+        # 7. Thanks / praise
+        if any(w in msg for w in ['thank', 'thanks', 'great', 'awesome', 'perfect', 'nice', 'good', 'helpful', 'love it']):
+            reply = "You're welcome! Happy cooking! 🍳 Ask me anything else about ingredients, scaling, or cooking steps."
+            return {'success': True, 'reply': reply, 'intent': 'thanks',
+                    'type': 'thanks', 'engine_used': 'deterministic', 'data': {},
+                    'suggestions': ['Scale for 4 people', 'Substitute for butter', 'Show cooking steps']}
+
+        # 8. Recipe Search / Dish Query / Ingredient Query
+        # Strip common search boilerplate
+        clean_q = re.sub(
+            r'^(?:find|search|show|suggest|give|recommend|what can i (?:cook|make)|recipe for|how (?:to cook|to make)|make me|cook|prepare)\s+',
+            '', msg
+        ).strip()
+        clean_q = re.sub(r'\b(recipe|dish|please|quick|easy)\b', '', clean_q).strip()
+        search_term = clean_q if clean_q else msg
+
+        if self.recipe_df is not None and search_term and len(search_term) >= 2:
+            # A. Search by Recipe Name
+            name_matches = self.recipe_df[
+                self.recipe_df['RecipeName'].str.contains(r'\b' + re.escape(search_term) + r'\b', case=False, na=False)
+            ]
+            if name_matches.empty:
+                name_matches = self.recipe_df[
+                    self.recipe_df['RecipeName'].str.contains(re.escape(search_term), case=False, na=False)
+                ]
+
+            # B. If not found by name, search by Ingredients
+            if name_matches.empty:
+                terms = [w.strip() for w in re.split(r'[,|and|\s]+', search_term) if len(w.strip()) > 2]
+                if terms:
+                    pattern = '.*'.join(re.escape(t) for t in terms[:3])
+                    name_matches = self.recipe_df[
+                        self.recipe_df['Ingredients_clean'].str.contains(pattern, case=False, na=False)
+                    ]
+
+            if not name_matches.empty:
+                lines = []
+                for _, r in name_matches.head(4).iterrows():
+                    srno_id = int(float(r['Srno'])) if pd.notna(r.get('Srno')) else ''
+                    link = f" [View Recipe](/recipe_details/{srno_id})" if srno_id else ""
+                    lines.append(
+                        f"• **{r['RecipeName']}** — ~{int(r.get('TotalTimeInMins', 30))} min, {r.get('Diet','')}{link}"
+                    )
+                reply = (
+                    f"Here are my top recommended dishes for **{search_term}**:\n\n"
+                    + "\n".join(lines)
+                    + "\n\nClick any recipe to view complete ingredients, or ask me for cooking steps!"
+                )
+                return {
+                    'success': True,
+                    'reply': reply,
+                    'intent': 'recipe_search',
+                    'type': 'recipe_search',
+                    'engine_used': 'deterministic',
+                    'data': {'count': len(name_matches)},
+                    'suggestions': ['Show cooking steps', 'Scale for 4 people', 'Substitute for butter']
+                }
+
+        # 9. Contextual fallback
+        if recipe:
+            name = recipe.get('RecipeName', 'your recipe')
+            reply = (
+                f"I'm here to help with **{name}**! 👩‍🍳\n\n"
+                f"Try asking me:\n"
+                f"• *'Scale for 5 people'* — adjust quantities for guests\n"
+                f"• *'Substitute for cream'* — find ingredient swaps\n"
+                f"• *'Show cooking steps'* — guided preparation instructions"
+            )
+        else:
+            reply = (
+                "I'm here to assist your cooking! 🍳 You can ask me:\n\n"
+                "• **Find dishes**: *'Biryani'*, *'Butter Chicken'*, *'Pasta'*\n"
+                "• **By ingredients**: *'Egg, onion, tomato'* or *'Chicken, rice'*\n"
+                "• **Ingredient swaps**: *'Substitute for butter'*\n"
+                "• **Portion scaling**: *'Scale for 6 people'*"
+            )
         return {
             'success': True,
             'reply': reply,
             'intent': 'general_chat',
-            'type': 'welcome',
+            'type': 'general',
             'engine_used': 'deterministic',
             'data': {},
             'suggestions': self._generate_suggestions('general_chat', recipe=recipe)
