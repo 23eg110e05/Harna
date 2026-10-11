@@ -1,159 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            height: 100vh;
-            background-image: url("../static/home_bg.jpg");
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            color: beige;
-        }
-        .info{
-            margin-left: 42vw;
-            margin-right: 2vw;
-            display: flex;
-            flex-direction: column;
-            /* align-items: center; */
-            /* justify-content: center; */
-        }
-        .title_div{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .title {
-            font-family: 'Playfair Display', serif; 
-            color: burlywood;
-            font-size: 4rem;
-            text-align: center;
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); 
-            margin-bottom: 0px;
-        }
-        .tag{
-            color: beige;
-            font-size: 1rem;
-            margin-top: 0px;
-        }
-        .description{
-            font-size: 24px;
-            color: beige;
-            line-height: 1.4;
-            margin-bottom: 8px;
-        }
-        .reasons ul {
-            margin-top: 0px;
-            font-size: 24px;
-            list-style: none;
-            padding-left: 0;
-            color: beige;
-        }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harna — Ingredients to Intelligence</title>
+  <meta name="description" content="Harna: Ingredients to Intelligence. AI-powered pantry recipe matching engine.">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/harna_logo.svg') }}">
 
-        .reasons li {
-            font-size: 24px;
-            margin: 12px 0;
-            padding-left: 30px;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5L1 5.6l1.4-1.4L4 5.7 9.6.1 11 1.5z" fill="%23deb887"/></svg>') no-repeat left center;
-        }
-        .log{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-left: 100px;
-            margin-top: 20px;
-        }
-        .Ready{
-            font-size: 16px;
-            margin-left: 80px;
-            margin-bottom: 0px;
-        }
-        .startbutton {
-            font-size: 20px;
-            margin-top: 15px;
-            margin-left: 100px;
-            background-color:rgb(201, 84, 52);
-            color: white;
-            border-radius: 9px;
-            border: 2px solid black;
-            padding: 15px 50px;
-            cursor: pointer;
-            transition: all 0.4s;
-            position: relative;
-            overflow: hidden;
-        }
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .startbutton:hover {
-            background-color: #ff0019;
-            color: white;
-        }
+  <style>
+    /* Harna Landing Brand Tokens */
+    :root {
+      --harna-teal: #063238;
+      --harna-teal-dark: #031E22;
+      --harna-lime: #D4F620;
+      --harna-lime-hover: #BEE012;
+      --page-bg: #F7FBFB;
+      --card-bg: #FFFFFF;
+      --border-color: #DEEAEC;
+      --text-main: #063238;
+      --text-muted: #6E8C91;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+    }
 
-        
-        .startbutton span {
-            display: inline-block;
-            position: relative;
-            transition: 0.5s;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--page-bg);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
 
-        
-        .startbutton span:after {
-            content: '\00bb'; 
-            position: absolute;
-            opacity: 0;
-            top: 0;
-            right: -20px;
-            transition: 0.5s;
-        }
+    /* Navbar */
+    .landing-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--harna-teal);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.875rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        /* Move text on hover */
-        .startbutton:hover span {
-            padding-right: 25px;
-        }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
 
-        .startbutton:hover span:after {
-            opacity: 1;
-            right: 0;
-        }
-    </style>
-  </head>
-  <body>
-    <div class="info">
-        <div class="title_div">
-            <h1 class="title">
-                Foodie-Finder
-            </h1>
-            <h2 class="tag">
-                Recipe Recommendation System
-            </h2>
-        </div>
-        <p class="description">
-            Foodie-Finder turns your ingredients into delicious recipes effortlessly. Just enter what you have, and our smart system instantly suggests top-rated dishes you can make—no surveys, no endless scrolling, just great food fast!
-        </p>
-        <div class="reasons">
-            <ul>
-                <li>🍳 Recipes powered by your pantry</li>
-                <li>"Taste the tradition. Just tell us what’s in your kitchen."</li>
-                <li>⏱ Save time with smart ingredient substitution ideas</li>
-            </ul>
-        </div>
-        <div class="log">
-            <p class = "Ready">
-                Ready To Join? Click to Get Started
-            </p>
-            <a href="{{ url_for('auth.login') }}">
-                <button class="startbutton"><span>Get Started</span></button>
-            </a>
-        </div>
+    .brand-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
 
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.125rem;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .brand-tagline-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-nav-ghost {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 150ms;
+    }
+    .btn-nav-ghost:hover { color: #FFFFFF; }
+
+    .btn-nav-cta {
+      background: var(--harna-lime);
+      color: var(--harna-teal);
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 150ms;
+    }
+    .btn-nav-cta:hover { background: var(--harna-lime-hover); }
+
+    /* Hero */
+    .hero-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 3.5rem;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--harna-teal);
+      background: rgba(212, 246, 32, 0.25);
+      border: 1px solid rgba(6, 50, 56, 0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.25rem, 4.5vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--harna-teal);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #063238 0%, #0A5964 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+
+    .btn-primary-hero {
+      background: var(--harna-teal);
+      color: var(--harna-lime);
+      padding: 0.875rem 1.75rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 150ms;
+      box-shadow: 0 4px 14px rgba(6, 50, 56, 0.15);
+    }
+    .btn-primary-hero:hover {
+      background: var(--harna-teal-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary-hero {
+      background: var(--card-bg);
+      color: var(--harna-teal);
+      border: 1px solid var(--border-color);
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      transition: all 150ms;
+    }
+    .btn-secondary-hero:hover { border-color: var(--harna-teal); }
+
+    .feature-points {
+      display: flex;
+      gap: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .feature-item i { color: var(--harna-teal); }
+
+    /* Visual Mockup Card */
+    .hero-mockup {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 40px -15px rgba(6, 50, 56, 0.12);
+    }
+
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mockup-pantry {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .mockup-tag {
+      background: var(--page-bg);
+      border: 1px solid var(--border-color);
+      padding: 0.25rem 0.625rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--harna-teal);
+    }
+
+    .recipe-preview-box {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .recipe-preview-box img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .recipe-preview-content {
+      padding: 1rem;
+    }
+
+    @media (max-width: 840px) {
+      .hero-section {
+        grid-template-columns: 1fr;
+        padding-top: 3rem;
+        gap: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Harna Navbar with Tagline -->
+  <header class="landing-nav">
+    <a href="{{ url_for('main.home') }}" class="brand-logo">
+      <img src="{{ url_for('static', filename='images/harna_logo.svg') }}" alt="Harna Logo">
+      <div class="brand-text">
+        <span class="brand-title">Harna</span>
+        <span class="brand-tagline-sub">Ingredients to Intelligence</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="{{ url_for('auth.login') }}" class="btn-nav-ghost">Sign In</a>
+      <a href="{{ url_for('auth.signup') }}" class="btn-nav-cta">Get Started</a>
     </div>
-  </body>
+  </header>
+
+  <!-- Hero Content -->
+  <main class="hero-section">
+    <div>
+      <div class="hero-eyebrow">
+        <i class="fas fa-sparkles"></i>
+        Ingredients to Intelligence
+      </div>
+      <h1 class="hero-title">
+        Meet <span>Harna</span>.<br>Cook with what's in your pantry.
+      </h1>
+      <p class="hero-desc">
+        No grocery runs, no wasted ingredients. Tell Harna what you have in your kitchen and discover top-rated authentic dishes in seconds.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.signup') }}" class="btn-primary-hero">
+          <i class="fas fa-search text-xs"></i> Start Finding Recipes
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="btn-secondary-hero">
+          Sign In
+        </a>
+      </div>
+
+      <div class="feature-points">
+        <div class="feature-item">
+          <i class="fas fa-bolt"></i> Instant Ingredient Matching
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-clock"></i> Filter by Cook Time
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-heart"></i> Save Favourites
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Visual -->
+    <div class="hero-mockup">
+      <div class="mockup-header">
+        <span class="text-xs font-bold text-teal-950">Available Ingredients</span>
+        <span style="background: rgba(212, 246, 32, 0.35); color: #063238;" class="text-[11px] px-2 py-0.5 rounded-full font-bold">94% Recipe Match</span>
+      </div>
+      <div class="mockup-pantry">
+        <span class="mockup-tag">Paneer</span>
+        <span class="mockup-tag">Tomatoes</span>
+        <span class="mockup-tag">Garam Masala</span>
+        <span class="mockup-tag">Cream</span>
+      </div>
+      <div class="recipe-preview-box">
+        <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600" alt="Paneer Butter Masala">
+        <div class="recipe-preview-content">
+          <div class="text-xs font-bold text-teal-950 mb-1">Paneer Butter Masala</div>
+          <div class="text-[11px] text-teal-700 flex gap-3">
+            <span><i class="fas fa-clock text-teal-900 mr-1"></i>35 mins</span>
+            <span><i class="fas fa-seedling text-emerald-600 mr-1"></i>Vegetarian</span>
+            <span><i class="fas fa-fire text-teal-900 mr-1"></i>380 kcal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</body>
 </html>

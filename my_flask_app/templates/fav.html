@@ -1,42 +1,88 @@
 {% extends "base.html" %}
-
-{% block title %}Favorites{% endblock %}
+{% block title %}Favourites — Harna{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <header class="header">
-            <h1>Your Favourite Recipes <i class="fas fa-heart"></i></h1>
-        </header>
+<div class="page-content">
 
-        <section class="recommendations">
-            {% for index,row in favs.iterrows() %}
-                <div class="recipe-card">
-                    <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
-                    <div class="recipe-content">
-                        <h3 class="recipe-title">{{row['RecipeName']}}</h3>
-                        <div class="recipe-info">
-                            <span>
-                                <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
-                                mins
-                            </span>
-                            <span>
-                                <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
-                            </span>
-                        </div>
-                        <h4> Cuisine: {{row['Cuisine']}}</h4> 
-                        <h4>Diet: {{row['Diet']}}</h4>
-                        <div class="recipe-actions">
-                            <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
-                                <i class="fas fa-eye"></i> View Recipe
-                            </a>
-                            <a href="{{url_for('main.remove_from_favourites',id=row['Srno'])}}" class="btn-remove">
-                                <i class="fas fa-trash-alt"></i> Remove From Favourites
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </section>
+  <div class="page-header">
+    <div class="page-header__eyebrow">Saved Cookbook</div>
+    <h1 class="page-header__title">Your Favourites</h1>
+    <p class="page-header__subtitle">Recipes you've bookmarked for quick kitchen access.</p>
+  </div>
+
+  {% set fav_list = favs.to_dict('records') if not favs.empty else [] %}
+
+  {% if fav_list|length == 0 %}
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="fas fa-heart"></i>
+      </div>
+      <h2 class="empty-state__title">No saved recipes yet</h2>
+      <p class="empty-state__desc">
+        When you find a dish you love in search results or discovery, tap the heart button to save it here.
+      </p>
+      <a href="{{ url_for('main.dish_finder') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-search"></i>
+        Find Recipes
+      </a>
     </div>
 
+  {% else %}
+
+    <div class="section-heading" style="margin-bottom:var(--space-6);">
+      <h2 class="section-heading__title">Saved Dishes</h2>
+      <span class="section-heading__count">{{ fav_list|length }} saved</span>
+      <div class="section-heading__line"></div>
+    </div>
+
+    <div class="recipe-grid">
+      {% for index, row in favs.iterrows() %}
+      <article class="recipe-card">
+        <div class="recipe-card__image-wrap">
+          <img class="recipe-card__image"
+               src="{{ row['images'] }}"
+               alt="{{ row['RecipeName'] }}"
+               loading="lazy"
+               onerror="this.src='https://via.placeholder.com/400x300/EEF4F5/063238?text=Harna+Recipe'">
+        </div>
+        <div class="recipe-card__body">
+          <h3 class="recipe-card__title">{{ row['RecipeName'] }}</h3>
+          <div class="recipe-card__meta">
+            <span class="recipe-card__meta-item">
+              <i class="fas fa-clock"></i>
+              {{ row['TotalTimeInMins']|int }} min
+            </span>
+            <span class="recipe-card__meta-item">
+              <i class="fas fa-signal"></i>
+              {{ row['Difficulty'] }}
+            </span>
+          </div>
+          <div class="recipe-card__tags">
+            {% if row['Diet'] %}
+              {% if 'vegetarian' in row['Diet']|lower or 'vegan' in row['Diet']|lower %}
+                <span class="tag tag--veg">{{ row['Diet'] }}</span>
+              {% else %}
+                <span class="tag tag--nonveg">{{ row['Diet'] }}</span>
+              {% endif %}
+            {% endif %}
+            {% if row['Cuisine'] %}<span class="tag">{{ row['Cuisine'] }}</span>{% endif %}
+          </div>
+          <div class="recipe-card__actions">
+            <a href="{{ url_for('main.recipe_details', id=row['Srno']) }}" class="btn btn-primary">
+              <i class="fas fa-eye"></i> View
+            </a>
+            <a href="{{ url_for('main.remove_from_favourites', id=row['Srno']) }}"
+               class="btn btn-danger"
+               onclick="return confirm('Remove this recipe from your Harna favourites?')">
+              <i class="fas fa-trash-alt"></i> Remove
+            </a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+  {% endif %}
+
+</div>
 {% endblock %}

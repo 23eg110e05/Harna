@@ -1,116 +1,185 @@
 {% extends "base.html" %}
+{% block title %}{{ recipe['RecipeName'] }} — Harna{% endblock %}
+{% block meta_description %}{{ recipe['RecipeName'] }}: {{ recipe['TotalTimeInMins']|int }} mins, {{ recipe['Servings'] }} servings on Harna.{% endblock %}
 
 {% block content %}
-<div class="recipe-details-container">
-    <div class="recipe-hero">
-        <div class="recipe-hero-content">
-            <h1 class="recipe-title">{{ recipe['RecipeName'] }}</h1>
-            <div class="recipe-meta">
-                <span><i class="fas fa-clock"></i> {{ recipe['TotalTimeInMins']|int }} mins</span>
-                <span><i class="fas fa-utensils"></i> {{ recipe['Servings'] }} servings</span>
-                <span><i class="fas fa-fire"></i> {{ recipe['Calories (kcal)'] }} calories(kcal)</span>
-            </div>
+<div class="page-content" style="max-width:1100px;">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="Breadcrumb" style="margin-bottom:var(--space-5);">
+    <a href="javascript:history.back()"
+       style="display:inline-flex; align-items:center; gap:var(--space-2); font-size:var(--text-sm); font-weight:600; color:var(--text-muted); transition:color 150ms;"
+       onmouseover="this.style.color='var(--harna-teal)'"
+       onmouseout="this.style.color='var(--text-muted)'">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      Back to Matches
+    </a>
+  </nav>
+
+  <!-- Hero Header -->
+  <div style="border-radius:var(--radius-xl); overflow:hidden; position:relative; height:360px; margin-bottom:var(--space-8); box-shadow:var(--shadow-lg);">
+    <img src="{{ recipe['images'] }}"
+         alt="{{ recipe['RecipeName'] }}"
+         style="width:100%; height:100%; object-fit:cover; display:block;"
+         onerror="this.src='https://via.placeholder.com/1100x360/063238/D4F620?text={{ recipe['RecipeName']|urlencode }}'">
+
+    <!-- Overlay Gradient -->
+    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(6,50,56,0.92) 0%, rgba(6,50,56,0.3) 50%, transparent 100%);"></div>
+
+    <!-- Hero Content -->
+    <div style="position:absolute; bottom:0; left:0; right:0; padding:2rem 2.5rem;">
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+        {% if recipe['Diet'] %}
+          {% if 'vegetarian' in recipe['Diet']|lower or 'vegan' in recipe['Diet']|lower %}
+            <span class="tag tag--veg" style="font-size:11px;">{{ recipe['Diet'] }}</span>
+          {% else %}
+            <span class="tag tag--nonveg" style="font-size:11px;">{{ recipe['Diet'] }}</span>
+          {% endif %}
+        {% endif %}
+        {% if recipe['Course'] %}<span class="tag" style="font-size:11px; background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.2);">{{ recipe['Course'] }}</span>{% endif %}
+        {% if recipe['Cuisine'] %}<span class="tag" style="font-size:11px; background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.2);">{{ recipe['Cuisine'] }}</span>{% endif %}
+      </div>
+      <h1 style="font-size:var(--text-2xl); font-weight:800; color:white; line-height:1.2; margin-bottom:0.75rem; letter-spacing:-0.02em;">
+        {{ recipe['RecipeName'] }}
+      </h1>
+      <div style="display:flex; flex-wrap:wrap; gap:1.5rem; font-size:var(--text-sm); color:rgba(255,255,255,0.85);">
+        <span style="display:flex; align-items:center; gap:0.375rem;">
+          <i class="fas fa-clock" style="color:var(--harna-lime);"></i>
+          {{ recipe['TotalTimeInMins']|int }} min total
+        </span>
+        <span style="display:flex; align-items:center; gap:0.375rem;">
+          <i class="fas fa-users" style="color:var(--harna-lime);"></i>
+          {{ recipe['Servings'] }} servings
+        </span>
+        {% if recipe['Calories (kcal)'] %}
+        <span style="display:flex; align-items:center; gap:0.375rem;">
+          <i class="fas fa-fire" style="color:var(--harna-lime);"></i>
+          {{ recipe['Calories (kcal)']|int }} kcal
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:var(--space-8); align-items:start;">
+
+    <!-- Left: Ingredients & Steps -->
+    <div>
+      <!-- Time Highlights -->
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-3); margin-bottom:var(--space-8);">
+        <div class="card" style="text-align:center; padding:var(--space-4);">
+          <div style="font-size:var(--text-xs); color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Prep Time</div>
+          <div style="font-size:var(--text-xl); font-weight:800; color:var(--text-primary); margin-top:2px;">{{ recipe['PrepTimeInMins']|int }}<span style="font-size:var(--text-xs); font-weight:500; color:var(--text-muted);"> min</span></div>
         </div>
-        <img src="{{ recipe['images'] }}" alt="{{ recipe['RecipeName'] }}" class="recipe-hero-image">
+        <div class="card" style="text-align:center; padding:var(--space-4);">
+          <div style="font-size:var(--text-xs); color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Cook Time</div>
+          <div style="font-size:var(--text-xl); font-weight:800; color:var(--text-primary); margin-top:2px;">{{ recipe['CookTimeInMins']|int }}<span style="font-size:var(--text-xs); font-weight:500; color:var(--text-muted);"> min</span></div>
+        </div>
+        <div class="card" style="text-align:center; padding:var(--space-4); background:var(--harna-teal); color:white;">
+          <div style="font-size:var(--text-xs); color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Total Duration</div>
+          <div style="font-size:var(--text-xl); font-weight:800; color:var(--harna-lime); margin-top:2px;">{{ recipe['TotalTimeInMins']|int }}<span style="font-size:var(--text-xs); font-weight:500; color:rgba(255,255,255,0.7);"> min</span></div>
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <section aria-labelledby="ingredients-heading" style="margin-bottom:var(--space-8);">
+        <h2 id="ingredients-heading" style="font-size:var(--text-lg); font-weight:800; color:var(--text-primary); margin-bottom:var(--space-4); padding-bottom:var(--space-2); border-bottom:2px solid var(--harna-teal); display:inline-block;">
+          Required Ingredients
+        </h2>
+        <div style="font-size:var(--text-sm); color:var(--text-secondary); line-height:var(--leading-loose); background:var(--bg-surface); padding:var(--space-5); border-radius:var(--radius-md); border:1px solid var(--border-light);">
+          {{ recipe['TranslatedIngredients'] }}
+        </div>
+      </section>
+
+      <!-- Steps -->
+      <section aria-labelledby="instructions-heading" style="margin-bottom:var(--space-8);">
+        <h2 id="instructions-heading" style="font-size:var(--text-lg); font-weight:800; color:var(--text-primary); margin-bottom:var(--space-4); padding-bottom:var(--space-2); border-bottom:2px solid var(--harna-teal); display:inline-block;">
+          Preparation Steps
+        </h2>
+        {% if recipe['Instructions'] is iterable and recipe['Instructions'] is not string %}
+          <ol style="counter-reset:step; list-style:none; padding:0;">
+            {% for step in recipe['Instructions'] %}
+            <li style="display:flex; gap:var(--space-4); margin-bottom:var(--space-4); background:var(--bg-surface); padding:var(--space-4); border-radius:var(--radius-md); border:1px solid var(--border-light); counter-increment:step;">
+              <span style="flex-shrink:0; width:26px; height:26px; background:var(--harna-teal); color:var(--harna-lime); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:var(--text-xs); font-weight:800; margin-top:1px;">
+                {{ loop.index }}
+              </span>
+              <p style="font-size:var(--text-sm); color:var(--text-secondary); line-height:var(--leading-loose); flex:1;">{{ step }}</p>
+            </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <div style="font-size:var(--text-sm); color:var(--text-secondary); line-height:var(--leading-loose); background:var(--bg-surface); padding:var(--space-5); border-radius:var(--radius-md); border:1px solid var(--border-light);">
+            {{ recipe['TranslatedInstructions'] }}
+          </div>
+        {% endif %}
+      </section>
     </div>
 
-    <div class="recipe-content-wrapper">
-        <div class="recipe-main-content">
-            <div class="recipe-description">
-                <h2>About This Recipe</h2>
-                <p><b>Preperation Time: </b> {{ recipe['PrepTimeInMins']|int }} mins</p>
-                <p><b>Cooking Time: </b> {{ recipe['CookTimeInMins']|int }} mins</p>
-                <p><b>Total Time Taken: </b> {{ recipe['TotalTimeInMins']|int }} mins</p>
-                <p><b>Servings: </b> {{ recipe['Servings'] }} servings</p>
-                <p><b>Cuisine: </b> {{ recipe['Cuisine'] }} </p>
-                <p><b>Course: </b> {{ recipe['Course'] }} </p>
-                <p><b>Diet: </b> {{ recipe['Diet'] }} </p>
-            </div>
-            <div class="recipe-ingredients">
-                <h2>Ingredients</h2>
-                <!-- <ul class="ingredients-list">
-                    {% for ingredient in recipe.ingredients %}
-                    <li>
-                        <span class="ingredient-checkbox">
-                            <input type="checkbox" id="ingredient-{{ loop.index }}">
-                            <label for="ingredient-{{ loop.index }}">{{ ingredient }}</label>
-                        </span>
-                    </li>
-                    {% endfor %}
-                </ul> -->
-                <p>
-                    {{recipe['TranslatedIngredients']}}
-                </p>
-            </div>
-
-            <div class="recipe-instructions">
-                <h2>Instructions</h2>
-                <p>
-                    {{recipe['TranslatedInstructions']}}
-                </p>
-            </div>
+    <!-- Right Sidebar -->
+    <aside>
+      <!-- Total Nutrition -->
+      <div class="card card--raised" style="margin-bottom:var(--space-4);">
+        <h3 style="font-size:var(--text-sm); font-weight:800; color:var(--text-primary); margin-bottom:var(--space-3); text-transform:uppercase; letter-spacing:0.04em;">
+          Nutrition <span style="font-size:var(--text-xs); color:var(--text-muted); font-weight:500;">(Dish Total)</span>
+        </h3>
+        <div class="nutrition-grid">
+          <div class="nutrition-item">
+            <span class="nutrition-label">Calories</span>
+            <span class="nutrition-value">{{ recipe['Calories (kcal)'] }} kcal</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Protein</span>
+            <span class="nutrition-value">{{ recipe['Protein (g)'] }}g</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Carbs</span>
+            <span class="nutrition-value">{{ recipe['Carbohydrates (g)'] }}g</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Fats</span>
+            <span class="nutrition-value">{{ recipe['Fats (g)'] }}g</span>
+          </div>
         </div>
+      </div>
 
-        <div class="recipe-sidebar">
-            <div class="recipe-card">
-                <div class="nutrition-info">
-                    <h3>Nutrition values in total dish</h3>
-                    <div class="nutrition-grid">
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Calories</span>
-                            <span class="nutrition-value">{{ recipe['Calories (kcal)'] }} kcal</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Protein</span>
-                            <span class="nutrition-value">{{ recipe['Protein (g)'] }}g</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Carbs</span>
-                            <span class="nutrition-value">{{ recipe['Carbohydrates (g)'] }}g</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Fat</span>
-                            <span class="nutrition-value">{{ recipe['Fats (g)'] }}g</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="recipe-actions">
-                    <button class="btn btn-primary" onclick="window.print()">
-                        <i class="fas fa-print"></i> Print Recipe
-                    </button>
-                </div>
-            </div>
-            <div class="recipe-card">
-                <div class="nutrition-info">
-                    <h3>Nutrition values per 100g</h3>
-                    <div class="nutrition-grid">
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Calories</span>
-                            <span class="nutrition-value">{{ recipe['Calories (kcal).1'] }} kcal</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Protein</span>
-                            <span class="nutrition-value">{{ recipe['Protein (g).1'] }}g</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Carbs</span>
-                            <span class="nutrition-value">{{ recipe['Carbohydrates (g).1'] }}g</span>
-                        </div>
-                        <div class="nutrition-item">
-                            <span class="nutrition-label">Fat</span>
-                            <span class="nutrition-value">{{ recipe['Fats (g).1'] }}g</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="recipe-actions">
-                    <button class="btn btn-primary" onclick="window.print()">
-                        <i class="fas fa-print"></i> Print Recipe
-                    </button>
-                </div>
-            </div>
+      <!-- Per 100g Nutrition -->
+      <div class="card card--raised" style="margin-bottom:var(--space-4);">
+        <h3 style="font-size:var(--text-sm); font-weight:800; color:var(--text-primary); margin-bottom:var(--space-3); text-transform:uppercase; letter-spacing:0.04em;">
+          Nutrition <span style="font-size:var(--text-xs); color:var(--text-muted); font-weight:500;">(Per 100g)</span>
+        </h3>
+        <div class="nutrition-grid">
+          <div class="nutrition-item">
+            <span class="nutrition-label">Calories</span>
+            <span class="nutrition-value">{{ recipe['Calories (kcal).1'] }} kcal</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Protein</span>
+            <span class="nutrition-value">{{ recipe['Protein (g).1'] }}g</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Carbs</span>
+            <span class="nutrition-value">{{ recipe['Carbohydrates (g).1'] }}g</span>
+          </div>
+          <div class="nutrition-item">
+            <span class="nutrition-label">Fats</span>
+            <span class="nutrition-value">{{ recipe['Fats (g).1'] }}g</span>
+          </div>
         </div>
-    </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex; flex-direction:column; gap:var(--space-2);">
+        <a href="{{ url_for('main.add_to_favourites', id=recipe['Srno']) }}" class="btn btn-primary btn-full">
+          <i class="far fa-heart"></i> Save to Favourites
+        </a>
+        <button class="btn btn-secondary btn-full" onclick="window.print()" type="button">
+          <i class="fas fa-print"></i> Print Recipe
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
 </div>
 {% endblock %}

@@ -1,153 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Foodie Finder - Signup</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — Harna</title>
+  <meta name="description" content="Create your Harna account — Ingredients to Intelligence.">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/harna_logo.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Harna Brand Tokens */
+    :root {
+      --harna-teal: #063238;
+      --harna-teal-dark: #031E22;
+      --harna-lime: #D4F620;
+      --page-bg: #F7FBFB;
+      --card-bg: #FFFFFF;
+      --border-color: #DEEAEC;
+      --text-main: #063238;
+      --text-muted: #6E8C91;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--page-bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
 
-        body {
-            background-image: url("../static/home_bg.jpg");
-            height: 100vh;
-            display: flex;
-            align-items: center;  
-            justify-content: flex-start; 
-            padding-left: 55%;
-            background-size: cover;
-        }
+    .auth-visual {
+      background: var(--harna-teal);
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3.5rem;
+    }
+    .auth-visual__logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .auth-visual__logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+    .auth-brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .auth-brand-tagline {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 0.02em;
+    }
+    .auth-visual__quote blockquote {
+      font-size: 1.625rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    .auth-visual__quote blockquote span {
+      color: var(--harna-lime);
+    }
+    .auth-visual__quote p {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5%;
-            height:auto;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            width: 70%;
-        }
+    .auth-form-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      background: var(--card-bg);
+      overflow-y: auto;
+    }
+    .auth-form-inner {
+      width: 100%;
+      max-width: 420px;
+    }
+    .auth-title {
+      font-size: 1.625rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.375rem;
+    }
+    .auth-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
 
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .alert-danger, .alert-error { background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; }
+    .alert-success { background: #DCFCE7; color: #16A34A; border: 1px solid #BBF7D0; }
 
-        .input-box {
-            width: 100%;
-            margin-bottom: 15px;
-        }
+    .form-group { margin-bottom: 1.125rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-main);
+      margin-bottom: 0.375rem;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      pointer-events: none;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.75rem 0.875rem 0.75rem 2.5rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background: var(--page-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      transition: all 150ms;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--harna-teal);
+      box-shadow: 0 0 0 3px rgba(6, 50, 56, 0.12);
+      background: #FFFFFF;
+    }
 
-        .input-box input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+    .btn-submit {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--harna-teal);
+      color: var(--harna-lime);
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover { background: var(--harna-teal-dark); }
 
-        .login-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #ff6347;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+    .auth-switch {
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    .auth-switch a {
+      color: var(--harna-teal);
+      font-weight: 700;
+    }
+    .auth-switch a:hover { text-decoration: underline; }
 
-        .login-btn:hover {
-            background-color: #d84315;
-        }
-
-        .signup-link {
-            margin-top: 10px;
-            display: block;
-            color: #333;
-        }
-
-        .signup-link a {
-            color: #ff6347;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
-        .text{
-            font-size: 18px;
-            text-align: left;
-            margin-bottom: 4px;
-        }
-         /* Add flash message styling */
-         .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-        }
-        .alert-danger { background-color: #f8d7da; color: #721c24; }
-        .alert-warning { background-color: #fff3cd; color: #856404; }
-        .alert-success { background-color: #d4edda; color: #155724; }
-    </style>
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .auth-visual { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h2>Foodie Finder Signup</h2>
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form action={{url_for('auth.signup_post')}} method="POST">
-            <p class="text">
-                Name:
-            </p>
-            <div class="input-box">
-                <input type="text" name="name" placeholder="Enter your name" value="{{ request.form.name }}" required>
-            </div>
-            <p class="text">
-                Phone Number:
-            </p>
-            <div class="input-box">
-                <input type="text" name="phone" placeholder="Enter your Phone Number" value="{{ request.form.phone }}" required>
-            </div>
-            <p class="text">
-                Gender:
-            </p>
-            <div class="input-box">
-                <input type="text" name="gender" placeholder="Enter your Gender (M/F)" value="{{ request.form.gender }}" required>
-            </div>
-            <p class="text">
-                Email:
-            </p>
-            <div class="input-box">
-                <input type="text" name="email" placeholder="Enter your email" value="{{ request.form.email }}" required>
-            </div>
-            <p class="text">
-                Password:
-            </p>
-            <div class="input-box">
-                <input type="password" name="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="login-btn">Signup</button>
-        </form>
-        <!-- Updated link -->
-        <p class="signup-link">
-            Already have an account? 
-            <a href="{{ url_for('auth.login') }}">Login here</a>
-        </p>
+  <div class="auth-visual">
+    <div class="auth-visual__logo">
+      <img src="{{ url_for('static', filename='images/harna_logo.svg') }}" alt="Harna">
+      <div>
+        <div class="auth-brand-name">Harna</div>
+        <div class="auth-brand-tagline">Ingredients to Intelligence</div>
+      </div>
     </div>
+    <div class="auth-visual__quote">
+      <blockquote>"Join thousands cooking better, fresher meals with <span>Harna</span>."</blockquote>
+      <p>Instant recipe suggestions powered by your available ingredients.</p>
+    </div>
+    <div class="text-xs text-teal-300/60">© Harna — Ingredients to Intelligence</div>
+  </div>
+
+  <main class="auth-form-wrap">
+    <div class="auth-form-inner">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Get started with personalized recipe recommendations.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+              <i class="fas fa-circle-info"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('auth.signup_post') }}" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <div class="input-wrap">
+            <i class="fas fa-user input-icon"></i>
+            <input class="form-input" type="text" id="name" name="name" placeholder="John Doe" value="{{ request.form.name or '' }}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope input-icon"></i>
+            <input class="form-input" type="email" id="email" name="email" placeholder="name@example.com" value="{{ request.form.email or '' }}" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone <span class="font-normal text-zinc-400">(optional)</span></label>
+            <div class="input-wrap">
+              <i class="fas fa-phone input-icon"></i>
+              <input class="form-input" type="tel" id="phone" name="phone" placeholder="10-digit #" value="{{ request.form.phone or '' }}">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="gender">Gender <span class="font-normal text-zinc-400">(optional)</span></label>
+            <div class="input-wrap">
+              <i class="fas fa-venus-mars input-icon"></i>
+              <select class="form-select" id="gender" name="gender">
+                <option value="">Select...</option>
+                <option value="Male" {% if request.form.gender == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if request.form.gender == 'Female' %}selected{% endif %}>Female</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-lock input-icon"></i>
+            <input class="form-input" type="password" id="password" name="password" placeholder="At least 6 characters" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Create Account</button>
+      </form>
+
+      <div class="auth-switch">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in here</a>
+      </div>
+    </div>
+  </main>
 
 </body>
 </html>

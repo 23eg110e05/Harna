@@ -1,100 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Foodie Finder{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="../static/css/styles.css">
-    <link rel="stylesheet" href="../static/css/sidebar.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Harna{% endblock %} — Ingredients to Intelligence</title>
+  <meta name="description" content="{% block meta_description %}Harna: Ingredients to Intelligence. Discover authentic Indian recipes based on what's in your pantry.{% endblock %}">
+
+  <!-- Favicon / Logo -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/harna_logo.svg') }}">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Harna Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+  {% block head_extra %}{% endblock %}
 </head>
 <body>
-    <div class="nav-sidebar">
-        <div class="nav-logo">
-            <i class="fas fa-utensils"></i>
-            <span>Foodie Finder</span>
+
+  <!-- Mobile Overlay & Toggle -->
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+  <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navSidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <div class="app-shell">
+
+    <!-- Harna Sidebar -->
+    <nav class="nav-sidebar" id="navSidebar" role="navigation" aria-label="Main navigation">
+      
+      <!-- Brand Logo Header with Tagline -->
+      <a href="{{ url_for('main.dish_finder') }}" class="nav-brand" style="text-decoration:none;">
+        <img src="{{ url_for('static', filename='images/harna_logo.svg') }}" alt="Harna Logo" class="nav-brand-logo-img">
+        <div>
+          <div class="nav-brand-name">Harna</div>
+          <div class="nav-brand-tagline">Ingredients to Intelligence</div>
         </div>
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="{{url_for('main.dish_finder')}}" class="nav-link">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{url_for('main.discover')}}" class="nav-link">
-                    <i class="fas fa-compass"></i>
-                    <span>Discover</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{url_for('main.favourites')}}" class="nav-link">
-                    <i class="fas fa-heart"></i>
-                    <span>Favorites</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{url_for('main.profile')}}" class="nav-link">
-                    <i class="fas fa-user-circle"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{url_for('auth.logout')}}" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </a>
-            </li>
+      </a>
+
+      <!-- Menu Section -->
+      <div class="nav-section">
+        <div class="nav-section-label">Explore</div>
+        <ul role="list">
+          <li class="nav-item">
+            <a href="{{ url_for('main.dish_finder') }}" class="nav-link {% if request.endpoint == 'main.dish_finder' %}active{% endif %}">
+              <i class="fas fa-search" aria-hidden="true"></i>
+              <span>Find Recipes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.discover') }}" class="nav-link {% if request.endpoint == 'main.discover' %}active{% endif %}">
+              <i class="fas fa-compass" aria-hidden="true"></i>
+              <span>Discover</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.favourites') }}" class="nav-link {% if request.endpoint == 'main.favourites' %}active{% endif %}">
+              <i class="fas fa-heart" aria-hidden="true"></i>
+              <span>Favourites</span>
+            </a>
+          </li>
         </ul>
+
+        <div class="nav-section-label" style="margin-top:1.25rem;">Account</div>
+        <ul role="list">
+          <li class="nav-item">
+            <a href="{{ url_for('main.profile') }}" class="nav-link {% if request.endpoint == 'main.profile' %}active{% endif %}">
+              <i class="fas fa-user-circle" aria-hidden="true"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('auth.logout') }}" class="nav-link">
+              <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+              <span>Sign Out</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Footer User -->
+      <div class="nav-footer">
+        {% if current_user.is_authenticated %}
+        <div class="nav-user">
+          <div class="nav-user-avatar">
+            {{ current_user.name[0].upper() if current_user.name else 'H' }}
+          </div>
+          <span class="nav-user-name">{{ current_user.name }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages" role="region" aria-label="Notifications" aria-live="polite">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" role="alert">
+                <i class="fas {% if category == 'success' %}fa-check-circle{% elif category in ('error', 'danger') %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button class="close-alert" type="button" onclick="this.closest('.alert').remove()" aria-label="Dismiss notification">&#x2715;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+
     </div>
+  </div>
 
-    <button class="mobile-nav-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
+  <script>
+    const toggle = document.getElementById('mobileNavToggle');
+    const sidebar = document.getElementById('navSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
 
-    <main class="main-content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                            <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
-    </main>
+    function openSidebar() {
+      sidebar.classList.add('is-open');
+      overlay.classList.add('is-visible');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.querySelector('i').className = 'fas fa-times';
+    }
 
-    <script>
-        // Mobile Navigation Toggle
-        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-        const navSidebar = document.querySelector('.nav-sidebar');
-        
-        mobileNavToggle.addEventListener('click', () => {
-            navSidebar.classList.toggle('active');
-        });
+    function closeSidebar() {
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-visible');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.querySelector('i').className = 'fas fa-bars';
+    }
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && 
-                !navSidebar.contains(e.target) && 
-                !mobileNavToggle.contains(e.target)) {
-                navSidebar.classList.remove('active');
-            }
-        });
+    toggle.addEventListener('click', () => {
+      sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+    });
 
-        // Set active nav link
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') === window.location.pathname) {
-                link.classList.add('active');
-            }
-        });
-        {% block scripts %}{% endblock %}
-    </script>
-    
+    overlay.addEventListener('click', closeSidebar);
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
-</html> 
+</html>

@@ -1,51 +1,69 @@
 {% extends "base.html" %}
-
-{% block title %} Profile {% endblock %}
+{% block title %}Profile — Foodie Finder{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="profile-container">
-            <div class="profile-photo-container">
-                <img src="{{ url_for('static', filename='images/user-profile.svg') }}" class="profile-photo">
-            </div>
-    
-            <h2 class="text-center">User Profile</h2>
-            <form action="/save_profile" method="POST">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Name:</label>
-                    <input type="text" name="name" value="{{ user.name }}" readonly class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email:</label>
-                    <input type="email" name="email" value="{{ user.email }}" readonly class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> Phone Number:</label>
-                    <input type="tel" 
-                            name="phone" 
-                            placeholder="Enter phone number"
-                            value="{{ user.phone or '' }}"
-                            pattern="[0-9]{10}"
-                            title="Please enter a valid 10-digit phone number"
-                            class="form-control">
-                    <small class="form-text">Enter a 10-digit phone number (e.g., 1234567890)</small>
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-venus-mars"></i> Gender:</label>
-                    <select name="gender" class="form-control">
-                        <option value="" {% if not user.gender %}selected{% endif %}>Select Gender</option>
-                        <option value="Male" {% if user.gender == 'M' %}selected{% endif %}>Male</option>
-                        <option value="Female" {% if user.gender == 'F' %}selected{% endif %}>Female</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save"></i> Save Profile
-                </button>
-            </form>
-        </div>
+<div class="page-content" style="max-width: 640px;">
+
+  <div class="page-header">
+    <div class="page-header__eyebrow">Account Settings</div>
+    <h1 class="page-header__title">Your Profile</h1>
+    <p class="page-header__subtitle">Manage your personal information and contact preferences.</p>
+  </div>
+
+  <div class="card card--raised">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-light);">
+      <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: var(--color-charcoal); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 700;">
+        {{ user.name[0].upper() if user.name else 'U' }}
+      </div>
+      <div>
+        <h2 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 0;">{{ user.name }}</h2>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin: 2px 0 0;">{{ user.email }}</p>
+      </div>
     </div>
+
+    <form action="{{ url_for('main.save_profile') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-user mr-1 text-zinc-400"></i> Full Name</label>
+        <input type="text" name="name" value="{{ user.name }}" readonly class="form-input" style="background: var(--bg-surface-alt); cursor: not-allowed; opacity: 0.85;">
+        <p class="form-hint">Account names are managed centrally.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-envelope mr-1 text-zinc-400"></i> Email Address</label>
+        <input type="email" name="email" value="{{ user.email }}" readonly class="form-input" style="background: var(--bg-surface-alt); cursor: not-allowed; opacity: 0.85;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="phone"><i class="fas fa-phone mr-1 text-zinc-400"></i> Phone Number</label>
+        <input type="tel" 
+               id="phone"
+               name="phone" 
+               placeholder="Enter 10-digit number"
+               value="{{ user.phone or '' }}"
+               pattern="[0-9]{10}"
+               class="form-input">
+        <p class="form-hint">10 digits without spaces or hyphens.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gender"><i class="fas fa-venus-mars mr-1 text-zinc-400"></i> Gender</label>
+        <select id="gender" name="gender" class="form-select">
+          <option value="" {% if not user.gender %}selected{% endif %}>Select Gender</option>
+          <option value="Male" {% if user.gender == 'M' or user.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Female" {% if user.gender == 'F' or user.gender == 'Female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check"></i> Save Changes
+        </button>
+        <a href="{{ url_for('main.dish_finder') }}" class="btn btn-secondary">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+</div>
 {% endblock %}

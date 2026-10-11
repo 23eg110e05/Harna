@@ -1,110 +1,147 @@
 {% extends "base.html" %}
-
-{% block title %}Recipe Recommendations{% endblock %}
+{% block title %}Recommendations — Harna{% endblock %}
 
 {% block content %}
-<div class="container">
-<header class="header">
-    <h1>Your Personalized Recipe Recommendations</h1>
-</header>
+<div class="page-content">
 
-<div class="results-summary">
-    <div class="summary-card">
-        <i class="fas fa-carrot"></i>
-        <h3>Given Ingredients</h3>
-        <p>{{ user_ingredients }}</p>
-    </div>
-    <div class="summary-card">
-        <i class="fas fa-clock"></i>
-        <h3>Cooking Time Duration</h3>
-        <p>{% if cooking_time_filter == "all" %}
-            All durations
-        {% elif cooking_time_filter == "quick" %}
-            0-30 minutes
-        {% elif cooking_time_filter == "medium" %}
-            30-60 minutes
-        {% elif cooking_time_filter == "long" %}
-            60+ minutes
-        {% endif %}</p>
-    </div>
-</div>
+  <!-- Header -->
+  <div class="page-header" style="margin-bottom:var(--space-6);">
+    <div class="page-header__eyebrow">Similarity Match Results</div>
+    <h1 class="page-header__title">Matched Recipes</h1>
+  </div>
 
-<section class="recommendations">
-    {% if not has_results %}
-        <div class="no-results-container">
-            <div class="no-results">
-                <i class="fas fa-search fa-4x no-results-icon"></i>
-                <h2>No matches found</h2>
-                <p class="no-results-message">We couldn't find any recipes matching your search for ingredients.</p>
-                <div class="tips-container">
-                    <h3>Try these suggestions:</h3>
-                    <ul class="tips-list">
-                        <li><i class="fas fa-check-circle"></i> Use fewer ingredients in your search</li>
-                        <li><i class="fas fa-check-circle"></i> Check your spelling</li>
-                        <li><i class="fas fa-check-circle"></i> Try more common ingredients</li>
-                    </ul>
-                </div>
-                <div class="no-results-action">
-                    <a href="/home" class="btn btn-primary">Try Another Search</a>
-                </div>
-            </div>
+  <!-- Summary Cards -->
+  <div style="display:flex; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-8); align-items:center;">
+    <div class="card" style="padding:var(--space-4) var(--space-5); display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:200px;">
+      <i class="fas fa-carrot" style="color:var(--harna-teal); font-size:1.125rem;" aria-hidden="true"></i>
+      <div>
+        <div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:var(--weight-bold); text-transform:uppercase; letter-spacing:.05em;">Given Ingredients</div>
+        <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--text-primary); margin-top:2px;">{{ user_ingredients }}</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:var(--space-4) var(--space-5); display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:180px;">
+      <i class="fas fa-clock" style="color:var(--harna-teal); font-size:1.125rem;" aria-hidden="true"></i>
+      <div>
+        <div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:var(--weight-bold); text-transform:uppercase; letter-spacing:.05em;">Cooking Time</div>
+        <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--text-primary); margin-top:2px;">
+          {% if cooking_time_filter == "all" %}Any duration
+          {% elif cooking_time_filter == "quick" %}Quick (≤30 min)
+          {% elif cooking_time_filter == "medium" %}Medium (30–60 min)
+          {% elif cooking_time_filter == "long" %}Long (60+ min)
+          {% endif %}
         </div>
+      </div>
+    </div>
+
+    <a href="{{ url_for('main.dish_finder') }}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i>
+      New Search
+    </a>
+  </div>
+
+  <!-- Recommendations Section -->
+  <section aria-label="Recipe recommendations" aria-live="polite">
+
+    {% if not has_results or recipes.empty %}
+
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-state__icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <h2 class="empty-state__title">No recipes matched your search</h2>
+        <p class="empty-state__desc">
+          Harna couldn't find recipes matching <strong>"{{ user_ingredients }}"</strong>
+          {% if cooking_time_filter != 'all' %}within your chosen cooking time{% endif %}.
+        </p>
+
+        <div class="empty-state__tips">
+          <p class="empty-state__tips-title">Tips for better matches:</p>
+          <ul>
+            <li>Try standard English ingredients (e.g. "paneer", "chicken", "potato")</li>
+            <li>Use fewer ingredients at once to expand suggestions</li>
+            <li>Double-check spelling</li>
+            {% if cooking_time_filter != 'all' %}
+            <li>Select "Any duration" for full results</li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <a href="{{ url_for('main.dish_finder') }}" class="btn btn-primary btn-lg">
+          <i class="fas fa-search"></i>
+          Try Another Search
+        </a>
+      </div>
+
     {% else %}
-        {% if recipes.empty %}
-            <div class="no-results-container">
-                <div class="no-results">
-                    <i class="fas fa-search fa-4x no-results-icon"></i>
-                    <h2>No matches found</h2>
-                    <p class="no-results-message">We couldn't find any recipes matching your search for ingredients.</p>
-                    <div class="tips-container">
-                        <h3>Try these suggestions:</h3>
-                        <ul class="tips-list">
-                            <li><i class="fas fa-check-circle"></i> Use fewer ingredients in your search</li>
-                            <li><i class="fas fa-check-circle"></i> Check your spelling</li>
-                            <li><i class="fas fa-check-circle"></i> Try more common ingredients</li>
-                            <li><i class="fas fa-check-circle"></i> Search for one ingredient at a time</li>
-                        </ul>
-                    </div>
-                    <div class="no-results-action">
-                        <a href="/home" class="btn btn-primary">Try Another Search</a>
-                    </div>
-                </div>
+
+      <div class="section-heading" style="margin-bottom:var(--space-6);">
+        <h2 class="section-heading__title">Top Recommended Matches</h2>
+        <span class="section-heading__count">{{ recipes|length }} recipe{% if recipes|length != 1 %}s{% endif %} found</span>
+        <div class="section-heading__line"></div>
+      </div>
+
+      <div class="recipe-grid">
+        {% for index, row in recipes.iterrows() %}
+        <article class="recipe-card">
+          <div class="recipe-card__image-wrap">
+            <img class="recipe-card__image"
+                 src="{{ row['images'] }}"
+                 alt="{{ row['RecipeName'] }}"
+                 loading="lazy"
+                 onerror="this.src='https://via.placeholder.com/400x300/EEF4F5/063238?text=Harna+Recipe'">
+            {% if row['Similarity'] is defined and row['Similarity'] %}
+              <span class="recipe-card__badge">{{ (row['Similarity'] * 100)|round|int }}% Match</span>
+            {% elif row['TotalTimeInMins'] <= 30 %}
+              <span class="recipe-card__badge">Quick</span>
+            {% endif %}
+          </div>
+          <div class="recipe-card__body">
+            <h3 class="recipe-card__title">{{ row['RecipeName'] }}</h3>
+            <div class="recipe-card__meta">
+              <span class="recipe-card__meta-item">
+                <i class="fas fa-clock"></i>
+                {{ row['TotalTimeInMins']|int }} min
+              </span>
+              <span class="recipe-card__meta-item">
+                <i class="fas fa-signal"></i>
+                {{ row['Difficulty'] }}
+              </span>
+              {% if row['Calories (kcal)'] %}
+              <span class="recipe-card__meta-item">
+                <i class="fas fa-fire"></i>
+                {{ row['Calories (kcal)']|int }} kcal
+              </span>
+              {% endif %}
             </div>
-        {% else %}
-            {% for index, row in recipes.iterrows() %}
-                <div class="recipe-card">
-                    <img src="{{row['images']}}" alt="{{row['RecipeName']}}" class="recipe-image">
-                    <div class="recipe-content">
-                        <h3 class="recipe-title">{{row['RecipeName']}}</h3>
-                        <div class="recipe-info">
-                            <span>
-                                <i class="fas fa-clock"></i>{{ row['TotalTimeInMins']|int }}
-                                mins
-                            </span>
-                            <span>
-                                <i class="fas fa-chart-line"></i>{{row['Difficulty']}}
-                            </span>
-                        </div>
-                        <div class="recipe-actions">
-                            <a href="{{url_for('main.recipe_details',id=row['Srno'])}}" class="btn view-recipe">
-                                <i class="fas fa-eye"></i> View Recipe
-                            </a>
-                            <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-favorite">
-                                <i class="far fa-heart"></i> Add to Favorites
-                            </a>                    
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
+            <div class="recipe-card__tags">
+              {% if row['Diet'] %}
+                {% if 'vegetarian' in row['Diet']|lower or 'vegan' in row['Diet']|lower %}
+                  <span class="tag tag--veg">{{ row['Diet'] }}</span>
+                {% else %}
+                  <span class="tag tag--nonveg">{{ row['Diet'] }}</span>
+                {% endif %}
+              {% endif %}
+              {% if row['Course'] %}
+                <span class="tag">{{ row['Course'] }}</span>
+              {% endif %}
+            </div>
+            <div class="recipe-card__actions">
+              <a href="{{ url_for('main.recipe_details', id=row['Srno']) }}" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View Recipe
+              </a>
+              <a href="{{ url_for('main.add_to_favourites', id=row['Srno'], next=request.url) }}" class="btn btn-secondary">
+                <i class="far fa-heart"></i> Save
+              </a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
     {% endif %}
-</section>
+  </section>
 
-<div class="results-actions">
-    <button class="btn btn-secondary" onclick="window.location.href='/home'">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </button>
 </div>
-
 {% endblock %}
- 
