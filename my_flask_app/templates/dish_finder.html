@@ -14,75 +14,93 @@
     </p>
   </div>
 
-  <!-- Search Form -->
-  <div style="max-width:640px; margin:0 auto 3rem;">
-    <form id="finderForm" method="post" action="{{ url_for('main.dish_finder') }}" novalidate>
+  <!-- Executive Search Command Center -->
+  <div style="max-width:720px; margin:0 auto 3.5rem;">
+    <div style="background:#FFFFFF; border:1.5px solid rgba(6,50,56,0.08); border-radius:24px; padding:2rem 2.25rem; box-shadow:0 24px 60px -12px rgba(6,50,56,0.12), 0 2px 6px rgba(6,50,56,0.04); position:relative; overflow:hidden;">
+      <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--harna-teal), var(--harna-lime));"></div>
 
-      <!-- Ingredient Input -->
-      <div class="form-group">
-        <label class="form-label" for="ingredients">
-          Available Ingredients
-          <span style="font-weight:400; color:var(--text-muted); font-size:var(--text-xs);">— separate with commas</span>
-        </label>
-        <div style="position:relative;">
-          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; pointer-events:none;">
-            <i class="fas fa-carrot" aria-hidden="true"></i>
-          </span>
-          <input class="form-input"
-                 type="text"
-                 id="ingredients"
-                 name="ingredients"
-                 placeholder="e.g. paneer, tomatoes, garam masala, capsicum"
-                 style="padding-left:2.5rem;"
-                 autocomplete="off"
-                 required
-                 aria-required="true"
-                 list="ingredient-suggestions">
-          <datalist id="ingredient-suggestions">
-            <option value="Paneer"><option value="Chicken"><option value="Egg">
-            <option value="Rice"><option value="Dal"><option value="Tomato">
-            <option value="Onion"><option value="Potato"><option value="Spinach">
-            <option value="Garam masala"><option value="Cumin"><option value="Coriander">
-          </datalist>
+      <form id="finderForm" method="post" action="{{ url_for('main.dish_finder') }}" novalidate>
+
+        <!-- Ingredient Input -->
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+            <label class="form-label" for="ingredients" style="margin-bottom:0; font-size:12px; font-weight:800; letter-spacing:0.04em;">
+              <i class="fas fa-kitchen-set" style="color:var(--harna-teal); margin-right:4px;"></i> Available Ingredients
+            </label>
+            <span style="font-weight:600; color:var(--text-muted); font-size:11.5px;">Separate with commas</span>
+          </div>
+
+          <div style="position:relative;">
+            <span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--harna-teal); font-size:16px; pointer-events:none;">
+              <i class="fas fa-carrot" aria-hidden="true"></i>
+            </span>
+            <input class="form-input"
+                   type="text"
+                   id="ingredients"
+                   name="ingredients"
+                   placeholder="e.g. paneer, tomatoes, garam masala, capsicum"
+                   style="padding-left:3rem; padding-right:2.5rem; height:54px; font-size:15px; font-weight:600; border-radius:14px; border:1.5px solid #CADADE; background:#F8FBFA; transition:all 0.25s ease;"
+                   autocomplete="off"
+                   required
+                   aria-required="true"
+                   list="ingredient-suggestions">
+            <datalist id="ingredient-suggestions">
+              <option value="Paneer"><option value="Chicken"><option value="Egg">
+              <option value="Rice"><option value="Dal"><option value="Tomato">
+              <option value="Onion"><option value="Potato"><option value="Spinach">
+              <option value="Garam masala"><option value="Cumin"><option value="Coriander">
+            </datalist>
+          </div>
+
+          <!-- Quick-Add Ingredient Tap Chips -->
+          <div style="margin-top:10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:11px; font-weight:700; color:#6E8C91; text-transform:uppercase; letter-spacing:0.03em;">Tap to add:</span>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Paneer')">+ Paneer</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Chicken')">+ Chicken</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Egg')">+ Egg</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Tomato')">+ Tomato</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Onion')">+ Onion</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Potato')">+ Potato</button>
+            <button type="button" class="tag" style="cursor:pointer; transition:all 0.15s ease;" onclick="addIngredient('Rice')">+ Rice</button>
+          </div>
         </div>
-        <p class="form-hint">
-          Enter one or more ingredients. The more specific, the higher the recipe similarity score.
-        </p>
-      </div>
 
-      <!-- Cooking Time Filter -->
-      <div class="form-group">
-        <label class="form-label">Cooking Time</label>
-        <div class="time-filter" role="group" aria-label="Filter by cooking time">
-          <input type="radio" id="ct_all"    name="cooking_time" value="all"    checked hidden>
-          <input type="radio" id="ct_quick"  name="cooking_time" value="quick"  hidden>
-          <input type="radio" id="ct_medium" name="cooking_time" value="medium" hidden>
-          <input type="radio" id="ct_long"   name="cooking_time" value="long"   hidden>
+        <!-- Cooking Time Filter -->
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label class="form-label" style="font-size:12px; font-weight:800; letter-spacing:0.04em; margin-bottom:8px;">
+            <i class="fas fa-hourglass-half" style="color:var(--harna-teal); margin-right:4px;"></i> Target Cooking Duration
+          </label>
+          <div class="time-filter" role="group" aria-label="Filter by cooking time">
+            <input type="radio" id="ct_all"    name="cooking_time" value="all"    checked hidden>
+            <input type="radio" id="ct_quick"  name="cooking_time" value="quick"  hidden>
+            <input type="radio" id="ct_medium" name="cooking_time" value="medium" hidden>
+            <input type="radio" id="ct_long"   name="cooking_time" value="long"   hidden>
 
-          <label for="ct_all" class="time-filter__btn active" onclick="setTime(this,'ct_all')">
-            <i class="fas fa-clock"></i> Any time
-          </label>
-          <label for="ct_quick" class="time-filter__btn" onclick="setTime(this,'ct_quick')">
-            <i class="fas fa-bolt"></i> Quick (≤30 min)
-          </label>
-          <label for="ct_medium" class="time-filter__btn" onclick="setTime(this,'ct_medium')">
-            <i class="fas fa-hourglass-half"></i> Medium (30–60 min)
-          </label>
-          <label for="ct_long" class="time-filter__btn" onclick="setTime(this,'ct_long')">
-            <i class="fas fa-hourglass-end"></i> Long (60+ min)
-          </label>
+            <label for="ct_all" class="time-filter__btn active" onclick="setTime(this,'ct_all')">
+              <i class="fas fa-clock"></i> Any Duration
+            </label>
+            <label for="ct_quick" class="time-filter__btn" onclick="setTime(this,'ct_quick')">
+              <i class="fas fa-bolt"></i> Quick (≤30 min)
+            </label>
+            <label for="ct_medium" class="time-filter__btn" onclick="setTime(this,'ct_medium')">
+              <i class="fas fa-utensils"></i> Medium (30–60 min)
+            </label>
+            <label for="ct_long" class="time-filter__btn" onclick="setTime(this,'ct_long')">
+              <i class="fas fa-fire-burner"></i> Slow Cook (60+ min)
+            </label>
+          </div>
         </div>
-      </div>
 
-      <!-- Action Button -->
-      <div>
-        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
-          <i class="fas fa-search"></i>
-          Find Matching Recipes
-        </button>
-      </div>
+        <!-- Action Button -->
+        <div>
+          <button type="submit" class="btn btn-primary btn-lg btn-full" id="submitBtn" style="height:52px; font-size:15px; font-weight:800; border-radius:14px; box-shadow:0 8px 24px rgba(212,246,32,0.45); font-family:var(--font-display);">
+            <i class="fas fa-magnifying-glass"></i>
+            Calculate Matching Recipes
+          </button>
+        </div>
 
-    </form>
+      </form>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -209,6 +227,22 @@
     document.getElementById(radioId).checked = true;
   }
 
+  function addIngredient(ingName) {
+    const input = document.getElementById('ingredients');
+    if (!input) return;
+    const current = input.value.trim();
+    if (!current) {
+      input.value = ingName;
+    } else {
+      // Check if already present
+      const list = current.split(',').map(s => s.trim().toLowerCase());
+      if (!list.includes(ingName.toLowerCase())) {
+        input.value = current + ', ' + ingName;
+      }
+    }
+    input.focus();
+  }
+
   document.getElementById('finderForm').addEventListener('submit', function(e) {
     const input = document.getElementById('ingredients').value.trim();
     if (!input) {
@@ -218,7 +252,7 @@
     }
     document.getElementById('loadingState').style.display = 'block';
     document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finding Recipes...';
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating Best Matches...';
   });
 </script>
 {% endblock %}

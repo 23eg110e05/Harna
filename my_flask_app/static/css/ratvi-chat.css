@@ -49,36 +49,38 @@
 }
 
 /* Chat Drawer Panel */
+/* Chat Drawer Panel */
 #ratvi-chat-panel {
   position: fixed;
-  bottom: 84px;
+  bottom: 88px;
   right: 24px;
-  width: 380px;
+  width: 390px;
   max-width: calc(100vw - 32px);
-  height: 540px;
+  height: 560px;
   max-height: calc(100vh - 120px);
   background: #FFFFFF;
-  border-radius: 16px;
-  border: 1px solid var(--border-light, #DEEAEC);
-  box-shadow: 0 16px 40px -10px rgba(6, 50, 56, 0.3);
+  border-radius: 24px;
+  border: 1px solid rgba(6, 50, 56, 0.1);
+  box-shadow: 0 24px 60px -10px rgba(2, 23, 26, 0.35), 0 2px 8px rgba(6, 50, 56, 0.06);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: opacity 200ms ease, transform 200ms ease;
+  transition: opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #ratvi-chat-panel.hidden {
   display: none !important;
   opacity: 0;
-  transform: scale(0.95) translateY(10px);
+  transform: scale(0.92) translateY(14px);
 }
 
 /* Chat Header */
 .ratvi-header {
-  background: var(--harna-teal, #063238);
+  background: linear-gradient(135deg, #042429 0%, #063238 100%);
   color: #FFFFFF;
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,52 +95,73 @@
 
 .ratvi-header-title h4 {
   margin: 0;
-  font-size: 14px;
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .ratvi-header-tagline {
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.65);
   margin-top: 1px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .ratvi-close-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  transition: color 150ms;
+  border-radius: 50%;
+  transition: all 150ms;
 }
 
 .ratvi-close-btn:hover {
+  background: rgba(212, 246, 32, 0.2);
   color: var(--harna-lime, #D4F620);
+  border-color: var(--harna-lime, #D4F620);
 }
 
 /* Chat Message Area */
 .ratvi-messages {
   flex: 1;
-  padding: 14px;
+  padding: 16px;
   overflow-y: auto;
-  background: var(--bg-page, #F7FBFB);
+  background: #F8FBFA;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 50, 56, 0.15) transparent;
+}
+
+.ratvi-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ratvi-messages::-webkit-scrollbar-thumb {
+  background: rgba(6, 50, 56, 0.15);
+  border-radius: 9999px;
 }
 
 .ratvi-msg {
-  max-width: 85%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  max-width: 88%;
+  padding: 11px 15px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
   word-break: break-word;
 }
 
@@ -146,44 +169,54 @@
   background: #FFFFFF;
   color: var(--text-primary, #063238);
   align-self: flex-start;
-  border: 1px solid var(--border-light, #DEEAEC);
-  border-bottom-left-radius: 3px;
-  box-shadow: 0 1px 3px rgba(6, 50, 56, 0.04);
+  border: 1px solid rgba(6, 50, 56, 0.08);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(6, 50, 56, 0.04);
 }
 
 .ratvi-msg-user {
   background: var(--harna-teal, #063238);
   color: #FFFFFF;
   align-self: flex-end;
-  border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 14px rgba(6, 50, 56, 0.2);
 }
 
 /* Quick Suggestion Chips */
 .ratvi-chips {
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: #FFFFFF;
-  border-top: 1px solid var(--border-light, #DEEAEC);
+  border-top: 1px solid rgba(6, 50, 56, 0.07);
   display: flex;
-  gap: 6px;
+  gap: 7px;
   overflow-x: auto;
   white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ratvi-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .ratvi-chip {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 600;
-  background: var(--bg-page, #F7FBFB);
+  font-weight: 700;
+  background: #F2F7F8;
   color: var(--harna-teal, #063238);
-  border: 1px solid var(--border-mid, #CADADE);
+  border: 1px solid #D6E4E6;
   cursor: pointer;
-  transition: all 150ms;
+  transition: all 150ms ease;
+  flex-shrink: 0;
 }
 
 .ratvi-chip:hover {
-  background: var(--harna-lime-subtle, rgba(212, 246, 32, 0.15));
+  background: var(--harna-teal, #063238);
+  color: var(--harna-lime, #D4F620);
   border-color: var(--harna-teal, #063238);
+  transform: translateY(-1px);
 }
 
 /* Chat Input Bar */

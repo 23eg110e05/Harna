@@ -5,39 +5,47 @@
 <div class="page-content">
 
   <!-- Header -->
-  <div class="page-header" style="margin-bottom:var(--space-6);">
-    <div class="page-header__eyebrow">Similarity Match Results</div>
-    <h1 class="page-header__title">Matched Recipes</h1>
+  <div class="page-header" style="margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <div class="page-header__eyebrow" style="color:#0A4A53; font-weight:800; letter-spacing:0.08em;">Pantry Match Engine</div>
+      <h1 class="page-header__title" style="font-family:var(--font-display); font-size:2.2rem; font-weight:900; letter-spacing:-0.03em;">Recommended Dishes</h1>
+    </div>
+    <a href="{{ url_for('main.dish_finder') }}" class="btn btn-secondary" style="border-radius:12px; font-weight:700; padding:10px 18px; box-shadow:0 2px 8px rgba(6,50,56,0.06);">
+      <i class="fas fa-arrow-left"></i>
+      <span>Adjust Pantry Ingredients</span>
+    </a>
   </div>
 
-  <!-- Summary Cards -->
-  <div style="display:flex; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-8); align-items:center;">
-    <div class="card" style="padding:var(--space-4) var(--space-5); display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:200px;">
-      <i class="fas fa-carrot" style="color:var(--harna-teal); font-size:1.125rem;" aria-hidden="true"></i>
-      <div>
-        <div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:var(--weight-bold); text-transform:uppercase; letter-spacing:.05em;">Given Ingredients</div>
-        <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--text-primary); margin-top:2px;">{{ user_ingredients }}</div>
+  <!-- Summary Pills Bar -->
+  <div style="background:#FFFFFF; border:1px solid rgba(6,50,56,0.08); border-radius:18px; padding:1rem 1.5rem; margin-bottom:2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; box-shadow:0 8px 24px -6px rgba(6,50,56,0.06);">
+    <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:32px; height:32px; border-radius:8px; background:rgba(212,246,32,0.25); color:var(--harna-teal); display:flex; align-items:center; justify-content:center; font-size:14px;"><i class="fas fa-basket-shopping"></i></span>
+        <div>
+          <div style="font-size:10.5px; font-weight:700; color:#6E8C91; text-transform:uppercase; letter-spacing:0.04em;">Pantry Search</div>
+          <div style="font-size:13.5px; font-weight:800; color:var(--harna-teal);">{{ user_ingredients }}</div>
+        </div>
       </div>
-    </div>
 
-    <div class="card" style="padding:var(--space-4) var(--space-5); display:flex; align-items:center; gap:var(--space-3); flex:1; min-width:180px;">
-      <i class="fas fa-clock" style="color:var(--harna-teal); font-size:1.125rem;" aria-hidden="true"></i>
-      <div>
-        <div style="font-size:var(--text-xs); color:var(--text-muted); font-weight:var(--weight-bold); text-transform:uppercase; letter-spacing:.05em;">Cooking Time</div>
-        <div style="font-size:var(--text-sm); font-weight:var(--weight-bold); color:var(--text-primary); margin-top:2px;">
-          {% if cooking_time_filter == "all" %}Any duration
-          {% elif cooking_time_filter == "quick" %}Quick (≤30 min)
-          {% elif cooking_time_filter == "medium" %}Medium (30–60 min)
-          {% elif cooking_time_filter == "long" %}Long (60+ min)
-          {% endif %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:32px; height:32px; border-radius:8px; background:rgba(6,50,56,0.06); color:var(--harna-teal); display:flex; align-items:center; justify-content:center; font-size:14px;"><i class="fas fa-clock"></i></span>
+        <div>
+          <div style="font-size:10.5px; font-weight:700; color:#6E8C91; text-transform:uppercase; letter-spacing:0.04em;">Duration</div>
+          <div style="font-size:13.5px; font-weight:800; color:var(--harna-teal);">
+            {% if cooking_time_filter == "all" %}Any duration
+            {% elif cooking_time_filter == "quick" %}Quick (≤30 min)
+            {% elif cooking_time_filter == "medium" %}Medium (30–60 min)
+            {% elif cooking_time_filter == "long" %}Slow Cook (60+ min)
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
 
-    <a href="{{ url_for('main.dish_finder') }}" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i>
-      New Search
-    </a>
+    <div style="font-size:12px; font-weight:700; color:#16A34A; background:#EAF8EE; border:1px solid #BBF7D0; border-radius:9999px; padding:4px 12px; display:flex; align-items:center; gap:5px;">
+      <i class="fas fa-check-circle"></i>
+      <span>Pantry Match Active</span>
+    </div>
   </div>
 
   <!-- Recommendations Section -->
