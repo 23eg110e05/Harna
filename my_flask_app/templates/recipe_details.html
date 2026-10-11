@@ -18,10 +18,10 @@
 
   <!-- Hero Header -->
   <div style="border-radius:var(--radius-xl); overflow:hidden; position:relative; height:360px; margin-bottom:var(--space-8); box-shadow:var(--shadow-lg);">
-    <img src="{{ recipe['images'] }}"
+    <img src="{{ recipe['images'] | recipe_img(recipe['RecipeName'], recipe.get('Cuisine','')) }}"
          alt="{{ recipe['RecipeName'] }}"
          style="width:100%; height:100%; object-fit:cover; display:block;"
-         onerror="this.src='https://via.placeholder.com/1100x360/063238/D4F620?text={{ recipe['RecipeName']|urlencode }}'">
+         class="recipe-hero-img">
 
     <!-- Overlay Gradient -->
     <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(6,50,56,0.92) 0%, rgba(6,50,56,0.3) 50%, transparent 100%);"></div>

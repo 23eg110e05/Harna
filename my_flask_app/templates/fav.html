@@ -40,10 +40,9 @@
       <article class="recipe-card">
         <div class="recipe-card__image-wrap">
           <img class="recipe-card__image"
-               src="{{ row['images'] }}"
+               src="{{ row['images'] | recipe_img(row['RecipeName'], row.get('Cuisine','')) }}"
                alt="{{ row['RecipeName'] }}"
-               loading="lazy"
-               onerror="this.src='https://via.placeholder.com/400x300/EEF4F5/063238?text=Harna+Recipe'">
+               loading="lazy">
         </div>
         <div class="recipe-card__body">
           <h3 class="recipe-card__title">{{ row['RecipeName'] }}</h3>

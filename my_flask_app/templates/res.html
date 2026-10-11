@@ -87,10 +87,9 @@
         <article class="recipe-card">
           <div class="recipe-card__image-wrap">
             <img class="recipe-card__image"
-                 src="{{ row['images'] }}"
+                 src="{{ row['images'] | recipe_img(row['RecipeName'], row.get('Cuisine','')) }}"
                  alt="{{ row['RecipeName'] }}"
-                 loading="lazy"
-                 onerror="this.src='https://via.placeholder.com/400x300/EEF4F5/063238?text=Harna+Recipe'">
+                 loading="lazy">
             {% if row['Similarity'] is defined and row['Similarity'] %}
               <span class="recipe-card__badge">{{ (row['Similarity'] * 100)|round|int }}% Match</span>
             {% elif row['TotalTimeInMins'] <= 30 %}

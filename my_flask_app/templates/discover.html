@@ -42,10 +42,9 @@
       <article class="recipe-card">
         <div class="recipe-card__image-wrap">
           <img class="recipe-card__image"
-               src="{{ row['images'] }}"
+               src="{{ row['images'] | recipe_img(row['RecipeName'], row.get('Cuisine','')) }}"
                alt="{{ row['RecipeName'] }}"
-               loading="lazy"
-               onerror="this.src='https://via.placeholder.com/400x300/E8E4DE/718096?text=No+Image'">
+               loading="lazy">
           {% if row['TotalTimeInMins'] <= 30 %}
             <span class="recipe-card__badge">Quick</span>
           {% endif %}

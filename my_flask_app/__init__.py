@@ -50,6 +50,12 @@ def create_app():
     except Exception as e:
         print(f"[Harna Warning] Deferred model loading: {e}")
 
+    # Register recipe image resolver as Jinja2 filter
+    from .utils.image_helper import resolve_recipe_image
+    @app.template_filter('recipe_img')
+    def recipe_img_filter(original_url, recipe_name='', cuisine=''):
+        return resolve_recipe_image(original_url, recipe_name, cuisine)
+
     # Session activity timestamp
     @app.before_request
     def check_valid_session():
