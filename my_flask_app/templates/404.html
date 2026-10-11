@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found (404) — Harna{% endblock %}
+
+{% block content %}
+<div class="page-content" style="max-width:540px; margin:4rem auto; text-align:center;">
+  <div style="font-size:3.5rem; font-weight:800; color:var(--harna-teal); line-height:1; margin-bottom:1rem;">404</div>
+  <h1 style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-bottom:0.75rem;">Page Not Found</h1>
+  <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:2rem;">
+    The page or recipe you are looking for doesn't exist, has been removed, or the link may be outdated.
+  </p>
+  <div style="display:flex; justify-content:center; gap:0.75rem;">
+    <a href="{{ url_for('main.dish_finder') }}" class="btn btn-primary">
+      <i class="fas fa-search"></i> Find Recipes
+    </a>
+    <a href="javascript:history.back()" class="btn btn-secondary">
+      Go Back
+    </a>
+  </div>
+</div>
+{% endblock %}

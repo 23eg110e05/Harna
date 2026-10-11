@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Server Error (500) — Harna{% endblock %}
+
+{% block content %}
+<div class="page-content" style="max-width:540px; margin:4rem auto; text-align:center;">
+  <div style="font-size:3.5rem; font-weight:800; color:var(--harna-teal); line-height:1; margin-bottom:1rem;">500</div>
+  <h1 style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-bottom:0.75rem;">Internal Server Error</h1>
+  <p style="font-size:0.875rem; color:var(--text-muted); line-height:1.6; margin-bottom:2rem;">
+    Something unexpected went wrong on our end. Our recommendation engine encountered an error while processing your request.
+  </p>
+  <div style="display:flex; justify-content:center; gap:0.75rem;">
+    <a href="{{ url_for('main.dish_finder') }}" class="btn btn-primary">
+      <i class="fas fa-home"></i> Return to Safety
+    </a>
+  </div>
+</div>
+{% endblock %}

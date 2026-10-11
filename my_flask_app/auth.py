@@ -1,126 +1,131 @@
-from flask import Blueprint,render_template,redirect,url_for,request,flash,session, current_app
-from werkzeug.security import generate_password_hash,check_password_hash
-from .models import User
-from . import db
-from my_flask_app.main import main
-from flask_login import login_user,logout_user,login_required, current_user
-from datetime import datetime, timedelta
 import time
 import secrets
+from datetime import datetime
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
+from .models import User
+from . import db
 
-auth = Blueprint('auth',__name__)
-
-# Wtch tutorial 6 for more nice management of database
+auth = Blueprint('auth', __name__)
 
 @auth.route('/signup')
 def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dish_finder'))
     return render_template('signup.html')
 
-@auth.route('/signup',methods = ['POST'])
+@auth.route('/signup', methods=['POST'])
 def signup_post():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    password = request.form.get('password')
-    phone=request.form.get('phone')
-    gender=request.form.get('gender')
+    name = (request.form.get('name') or '').strip()
+    email = (request.form.get('email') or '').strip().lower()
+    password = request.form.get('password') or ''
+    phone = (request.form.get('phone') or '').strip()
+    gender = (request.form.get('gender') or '').strip()
 
-    # if len(password) < 6:                   #Add more security checks later      
-    #     flash('Password must be at least 6 characters long.', 'danger')
-    #     return redirect(url_for('auth.signup'))
+    # Input validations
+    if not name or len(name) < 2:
+        flash('Please enter a valid full name (at least 2 characters).', 'danger')
+        return redirect(url_for('auth.signup'))
 
-    # #debug
-    # print("Signup: ",name,email,password)
+    if not email or '@' not in email or '.' not in email:
+        flash('Please enter a valid email address.', 'danger')
+        return redirect(url_for('auth.signup'))
+
+    if len(password) < 6:
+        flash('Password must be at least 6 characters long.', 'danger')
+        return redirect(url_for('auth.signup'))
+
+    # Phone validation
+    parsed_phone = None
+    if phone:
+        if phone.isdigit() and len(phone) == 10:
+            parsed_phone = int(phone)
+        else:
+            flash('Phone number must be a valid 10-digit number.', 'danger')
+            return redirect(url_for('auth.signup'))
+
+    gender_char = None
+    if gender in ('Male', 'M'):
+        gender_char = 'M'
+    elif gender in ('Female', 'F'):
+        gender_char = 'F'
+
+    # Check for duplicate user
     user = User.query.filter_by(email=email).first()
     if user:
-        flash('User already exists. Please log in.', 'danger')
+        flash('An account with this email already exists. Please log in.', 'warning')
         return redirect(url_for('auth.login'))
-    
+
     new_user = User(
-        name = name,
-        email = email,
-        password = generate_password_hash(password,method='pbkdf2:sha256'),#Why did we choose this?
-        phone=phone,
-        gender=gender  
+        name=name,
+        email=email,
+        password=generate_password_hash(password, method='pbkdf2:sha256'),
+        phone=parsed_phone,
+        gender=gender_char
     )
 
     db.session.add(new_user)
     try:
         db.session.commit()
-        flash('Signup Successful!','success')
+        flash('Registration successful! Please sign in.', 'success')
     except Exception as e:
-        print("Error during commit:", e)
+        print("[Harna Auth Error]", e)
         db.session.rollback()
-        return "An error occurred while signing up.", 500
-    
+        flash('An internal database error occurred while creating your account. Please try again.', 'danger')
+        return redirect(url_for('auth.signup'))
+
     return redirect(url_for('auth.login'))
 
 
 @auth.route('/login')
 def login():
-    
     if current_user.is_authenticated:
-        logout_user()
-        session.clear()
+        return redirect(url_for('main.dish_finder'))
     return render_template('login.html')
 
-@auth.route('/login',methods=['POST'])
+@auth.route('/login', methods=['POST'])
 def login_post():
-    email = request.form.get('email')
-    password = request.form.get('password')
-    # Always set remember to False to disable the remember me functionality
-    remember = False
+    email = (request.form.get('email') or '').strip().lower()
+    password = request.form.get('password') or ''
+
+    if not email or not password:
+        flash('Please provide both email and password.', 'error')
+        return redirect(url_for('auth.login'))
 
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        flash('User with provided E-mail does not exist please signup','error')
+        flash('No account found with this email. Please sign up first.', 'error')
         return redirect(url_for('auth.signup'))
-    if not check_password_hash(user.password,password):
-        flash('Password is incorrect, please try again!','error')
+
+    if not check_password_hash(user.password, password):
+        flash('Incorrect password. Please try again.', 'error')
         return redirect(url_for('auth.login'))
-    
-    
+
     session.clear()
-    
-    # Set remember=False to disable the remember me functionality
-    login_user(user, remember=remember)
-    
-    # Generate a unique session ID
+
+    login_user(user, remember=False)
     session['session_id'] = secrets.token_hex(16)
-    
-    # Set a flag in the session to indicate this is a fresh login
     session['is_fresh_login'] = True
     session['login_time'] = time.time()
     session['user_id'] = user.id
     session['user_email'] = user.email
-    
-    # Log login attempt
-    print(f"User {user.email} logged in at {datetime.now()}")
-    
-    # Clear any cached pages
+
     response = redirect(url_for('main.dish_finder'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
 
+
 @auth.route('/logout')
 @login_required
 def logout():
-    
-    if current_user.is_authenticated:
-        print(f"User {current_user.email} logged out at {datetime.now()}")
-    
-  
     logout_user()
-    
-    # Clear the session completely
     session.clear()
-    
-    # Show logout message
-    flash("You have been successfully logged out.", "success")
-    
-    # Redirect with cache control headers
+    flash("You have been signed out safely.", "success")
+
     response = redirect(url_for('auth.login'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
     response.headers['Pragma'] = 'no-cache'
