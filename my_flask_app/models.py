@@ -8,7 +8,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100),unique=True,nullable=False)
     password = db.Column(db.String(150),nullable=False)
     phone=db.Column(db.Integer)
-    gender=db.Column(db.String(1))
+    gender=db.Column(db.String(6))
     favourites = db.relationship('Favourite',backref='author',lazy=True)
 
     def set_password(self, password):

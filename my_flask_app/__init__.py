@@ -39,6 +39,10 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
+    # Auto-create database tables on first run (critical for fresh deploys)
+    with app.app_context():
+        db.create_all()
+
     # Pre-cache ML models and recipe database at startup
     from .utils.cache import cache
     try:

@@ -48,6 +48,8 @@ def signup_post():
         gender_char = 'M'
     elif gender in ('Female', 'F'):
         gender_char = 'F'
+    elif gender in ('Other', 'O'):
+        gender_char = 'O'
 
     # Check for duplicate user
     user = User.query.filter_by(email=email).first()
