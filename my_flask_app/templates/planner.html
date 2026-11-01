@@ -1,0 +1,1103 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekly Meal Planner — Harna{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     HARNA MEAL PLANNER STYLES
+     ═══════════════════════════════════════════════════════════ */
+  .planner-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .planner-title-group h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+    margin: 0 0 0.35rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .planner-title-group p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .planner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Week Navigator Bar */
+  .week-nav-bar {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    padding: 0.35rem 0.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .week-nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--harna-teal);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .week-nav-btn:hover {
+    background: var(--harna-lime-subtle);
+    color: var(--harna-teal-dark);
+  }
+
+  .week-nav-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--harna-teal);
+    padding: 0 1rem;
+    white-space: nowrap;
+  }
+
+  .btn-lime {
+    background: var(--harna-lime);
+    color: var(--harna-teal);
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius-full);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(212, 246, 32, 0.3);
+  }
+
+  .btn-lime:hover {
+    background: var(--harna-lime-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 246, 32, 0.45);
+  }
+
+  .btn-outline {
+    background: #FFFFFF;
+    color: var(--harna-teal);
+    border: 1px solid var(--border-mid);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.15rem;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-outline:hover {
+    background: var(--bg-surface-alt);
+    border-color: var(--harna-teal);
+  }
+
+  /* Metric Highlights Strip */
+  .planner-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--harna-lime-subtle);
+    color: var(--harna-teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .stat-card__val {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+    line-height: 1.2;
+  }
+
+  .stat-card__label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* 7-Day Matrix Columns */
+  .planner-matrix {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(240px, 1fr));
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-mid) transparent;
+  }
+
+  .day-column {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .day-column.is-today {
+    border: 2px solid var(--harna-teal);
+    box-shadow: 0 4px 18px rgba(6, 50, 56, 0.12);
+  }
+
+  .day-column__header {
+    padding: 1rem 1.15rem 0.85rem;
+    border-bottom: 1px solid var(--border-light);
+    background: #FDFEFE;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .day-column.is-today .day-column__header {
+    background: rgba(212, 246, 32, 0.15);
+  }
+
+  .day-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .day-title-row h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+  }
+
+  .today-badge {
+    background: var(--harna-teal);
+    color: var(--harna-lime);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+  }
+
+  .day-date-label {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* Day Calories Bar */
+  .day-cal-meter {
+    margin-top: 0.65rem;
+  }
+
+  .day-cal-meter__label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+
+  .day-cal-meter__bar {
+    height: 5px;
+    background: var(--border-light);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  .day-cal-meter__fill {
+    height: 100%;
+    background: var(--harna-teal);
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+  }
+
+  .day-cal-meter__fill.high {
+    background: #EAB308;
+  }
+
+  /* Meal Slots Area */
+  .day-slots {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    flex: 1;
+  }
+
+  .slot-section-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0.25rem 0 0.35rem 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* Meal Card */
+  .meal-item-card {
+    background: #F8FBFA;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 0.65rem;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+
+  .meal-item-card:hover {
+    border-color: var(--harna-lime);
+    box-shadow: 0 2px 10px rgba(6, 50, 56, 0.06);
+    background: #FFFFFF;
+  }
+
+  .meal-item-card__inner {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  .meal-item-card__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #E8F0F1;
+  }
+
+  .meal-item-card__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .meal-item-card__title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--harna-teal);
+    line-height: 1.25;
+    margin: 0 0 0.3rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .meal-item-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .meal-item-card__title a:hover {
+    color: #0A636F;
+    text-decoration: underline;
+  }
+
+  .meal-item-card__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+  }
+
+  .meal-pill {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+  }
+
+  .meal-item-card__remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+  }
+
+  .meal-item-card__remove:hover {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  /* Empty Slot Add Button */
+  .btn-add-slot {
+    width: 100%;
+    background: #FAFCFB;
+    border: 1px dashed var(--border-mid);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-add-slot:hover {
+    border-color: var(--harna-teal);
+    color: var(--harna-teal);
+    background: var(--harna-lime-subtle);
+  }
+
+  /* Day Footer Totals */
+  .day-column__footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-light);
+    background: #FAFDFD;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     MODAL STYLES
+     ═══════════════════════════════════════════════════════════ */
+  .harna-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 50, 56, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .harna-modal-backdrop.active {
+    display: flex;
+  }
+
+  .harna-modal {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 580px;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 40px rgba(6, 50, 56, 0.25);
+    overflow: hidden;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .harna-modal__header {
+    background: #F8FBFA;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .harna-modal__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+    margin: 0;
+  }
+
+  .harna-modal__close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .harna-modal__close:hover {
+    background: #E8F0F1;
+    color: var(--harna-teal);
+  }
+
+  .harna-modal__body {
+    padding: 1.5rem;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  .search-input-wrap {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+
+  .search-input-wrap i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+  }
+
+  .search-input-wrap input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.6rem;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-family: var(--font-sans);
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .search-input-wrap input:focus {
+    border-color: var(--harna-teal);
+    box-shadow: 0 0 0 3px var(--harna-lime-subtle);
+  }
+
+  .modal-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-height: 200px;
+  }
+
+  .recipe-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.65rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .recipe-picker-item:hover {
+    border-color: var(--harna-teal);
+    background: var(--bg-surface-alt);
+  }
+
+  .recipe-picker-item img {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background: #E8F0F1;
+  }
+
+  .recipe-picker-item__info {
+    flex: 1;
+  }
+
+  .recipe-picker-item__name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--harna-teal);
+    line-height: 1.25;
+    margin-bottom: 0.2rem;
+  }
+
+  .recipe-picker-item__meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .recipe-picker-item__btn {
+    background: var(--harna-lime);
+    color: var(--harna-teal);
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+  }
+
+  .recipe-picker-item__btn:hover {
+    background: var(--harna-lime-hover);
+  }
+
+  /* Form Elements for Generator */
+  .gen-form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .gen-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--harna-teal);
+    margin-bottom: 0.5rem;
+  }
+
+  .diet-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .diet-radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--harna-teal);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .diet-radio-label input {
+    display: none;
+  }
+
+  .diet-radio-label.active {
+    background: var(--harna-teal);
+    color: var(--harna-lime);
+    border-color: var(--harna-teal);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="planner-container" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.25rem;">
+
+  <!-- Header -->
+  <div class="planner-header">
+    <div class="planner-title-group">
+      <h1><i class="fas fa-calendar-alt" style="color:var(--harna-teal);"></i> Weekly Meal Planner</h1>
+      <p>Organize your week, balance nutrition, and auto-generate grocery lists with Harna intelligence.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="planner-actions">
+      <!-- Week Navigator -->
+      <div class="week-nav-bar">
+        <a href="{{ url_for('main.meal_planner', week=prev_week) }}" class="week-nav-btn" title="Previous Week">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+        <div class="week-nav-label">
+          {{ start_of_week.strftime('%b %d') }} – {{ end_of_week.strftime('%b %d, %Y') }}
+        </div>
+        <a href="{{ url_for('main.meal_planner', week=next_week) }}" class="week-nav-btn" title="Next Week">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+
+      <!-- Action Buttons -->
+      <button type="button" class="btn-lime" onclick="openGeneratorModal()">
+        <i class="fas fa-magic"></i> Auto-Fill Week
+      </button>
+
+      <a href="{{ url_for('main.planner_grocery', week=current_week_str) }}" class="btn-outline">
+        <i class="fas fa-shopping-basket"></i> Smart Grocery
+      </a>
+
+      <button type="button" class="btn-outline" style="color:#DC2626;" onclick="clearActiveWeek()">
+        <i class="fas fa-trash-alt"></i> Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Metric Highlights -->
+  <div class="planner-stats-grid">
+    <div class="stat-card">
+      <div class="stat-card__icon"><i class="fas fa-utensils"></i></div>
+      <div>
+        <div class="stat-card__val">{{ total_week_meals }} / 28</div>
+        <div class="stat-card__label">Planned Meals</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__icon"><i class="fas fa-fire"></i></div>
+      <div>
+        <div class="stat-card__val">{{ avg_daily_calories }} kcal</div>
+        <div class="stat-card__label">Daily Avg Energy</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__icon"><i class="fas fa-bullseye"></i></div>
+      <div>
+        <div class="stat-card__val">{{ target_calories }} kcal</div>
+        <div class="stat-card__label">Daily Calorie Target</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__icon"><i class="fas fa-heartbeat"></i></div>
+      <div>
+        <div class="stat-card__val">{% if avg_daily_calories > 0 and avg_daily_calories <= 2200 %}On Track{% elif avg_daily_calories > 2200 %}High Energy{% else %}Light{% endif %}</div>
+        <div class="stat-card__label">Nutrition Status</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7-Day Matrix -->
+  <div class="planner-matrix">
+    {% for day in days %}
+    <div class="day-column {% if day.is_today %}is-today{% endif %}">
+      
+      <!-- Day Header -->
+      <div class="day-column__header">
+        <div class="day-title-row">
+          <h3>{{ day.day_full }}</h3>
+          {% if day.is_today %}
+            <span class="today-badge">Today</span>
+          {% endif %}
+        </div>
+        <div class="day-date-label">{{ day.month_name }} {{ day.day_num }}</div>
+
+        <!-- Calorie Meter -->
+        <div class="day-cal-meter">
+          <div class="day-cal-meter__label">
+            <span>{{ day.totals.calories }} kcal</span>
+            <span>Target: {{ target_calories }}</span>
+          </div>
+          {% set cal_pct = (day.totals.calories / target_calories * 100)|round|int %}
+          <div class="day-cal-meter__bar">
+            <div class="day-cal-meter__fill {% if cal_pct > 115 %}high{% endif %}" style="width: {{ [cal_pct, 100]|min }}%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Slots -->
+      <div class="day-slots">
+
+        <!-- 1. BREAKFAST -->
+        <div>
+          <div class="slot-section-title"><i class="fas fa-sun" style="color:#F59E0B;"></i> Breakfast</div>
+          {% if day.meals.breakfast %}
+            {% for meal in day.meals.breakfast %}
+              <div class="meal-item-card">
+                <button type="button" class="meal-item-card__remove" onclick="removeMeal({{ meal.plan_id }})" title="Remove meal">&#x2715;</button>
+                <div class="meal-item-card__inner">
+                  <img src="{{ meal.image | recipe_img(meal.recipe_name, meal.cuisine) }}" alt="{{ meal.recipe_name }}" class="meal-item-card__thumb">
+                  <div class="meal-item-card__content">
+                    <div class="meal-item-card__title" title="{{ meal.recipe_name }}">
+                      <a href="{{ url_for('main.recipe_details', id=meal.recipe_id) }}">{{ meal.recipe_name }}</a>
+                    </div>
+                    <div class="meal-item-card__pills">
+                      <span class="meal-pill"><i class="fas fa-clock"></i> {{ meal.cook_time }}m</span>
+                      <span class="meal-pill">🔥 {{ meal.calories }} kcal</span>
+                      <span class="meal-pill">💪 {{ meal.protein }}g</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <button type="button" class="btn-add-slot" onclick="openAddModal('{{ day.date_str }}', 'breakfast', '{{ day.day_full }}')">
+              <i class="fas fa-plus"></i> Add Breakfast
+            </button>
+          {% endif %}
+        </div>
+
+        <!-- 2. LUNCH -->
+        <div>
+          <div class="slot-section-title"><i class="fas fa-cloud-sun" style="color:#0284C7;"></i> Lunch</div>
+          {% if day.meals.lunch %}
+            {% for meal in day.meals.lunch %}
+              <div class="meal-item-card">
+                <button type="button" class="meal-item-card__remove" onclick="removeMeal({{ meal.plan_id }})" title="Remove meal">&#x2715;</button>
+                <div class="meal-item-card__inner">
+                  <img src="{{ meal.image | recipe_img(meal.recipe_name, meal.cuisine) }}" alt="{{ meal.recipe_name }}" class="meal-item-card__thumb">
+                  <div class="meal-item-card__content">
+                    <div class="meal-item-card__title" title="{{ meal.recipe_name }}">
+                      <a href="{{ url_for('main.recipe_details', id=meal.recipe_id) }}">{{ meal.recipe_name }}</a>
+                    </div>
+                    <div class="meal-item-card__pills">
+                      <span class="meal-pill"><i class="fas fa-clock"></i> {{ meal.cook_time }}m</span>
+                      <span class="meal-pill">🔥 {{ meal.calories }} kcal</span>
+                      <span class="meal-pill">💪 {{ meal.protein }}g</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <button type="button" class="btn-add-slot" onclick="openAddModal('{{ day.date_str }}', 'lunch', '{{ day.day_full }}')">
+              <i class="fas fa-plus"></i> Add Lunch
+            </button>
+          {% endif %}
+        </div>
+
+        <!-- 3. DINNER -->
+        <div>
+          <div class="slot-section-title"><i class="fas fa-moon" style="color:#6366F1;"></i> Dinner</div>
+          {% if day.meals.dinner %}
+            {% for meal in day.meals.dinner %}
+              <div class="meal-item-card">
+                <button type="button" class="meal-item-card__remove" onclick="removeMeal({{ meal.plan_id }})" title="Remove meal">&#x2715;</button>
+                <div class="meal-item-card__inner">
+                  <img src="{{ meal.image | recipe_img(meal.recipe_name, meal.cuisine) }}" alt="{{ meal.recipe_name }}" class="meal-item-card__thumb">
+                  <div class="meal-item-card__content">
+                    <div class="meal-item-card__title" title="{{ meal.recipe_name }}">
+                      <a href="{{ url_for('main.recipe_details', id=meal.recipe_id) }}">{{ meal.recipe_name }}</a>
+                    </div>
+                    <div class="meal-item-card__pills">
+                      <span class="meal-pill"><i class="fas fa-clock"></i> {{ meal.cook_time }}m</span>
+                      <span class="meal-pill">🔥 {{ meal.calories }} kcal</span>
+                      <span class="meal-pill">💪 {{ meal.protein }}g</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <button type="button" class="btn-add-slot" onclick="openAddModal('{{ day.date_str }}', 'dinner', '{{ day.day_full }}')">
+              <i class="fas fa-plus"></i> Add Dinner
+            </button>
+          {% endif %}
+        </div>
+
+        <!-- 4. SNACK -->
+        <div>
+          <div class="slot-section-title"><i class="fas fa-cookie-bite" style="color:#EC4899;"></i> Snack</div>
+          {% if day.meals.snack %}
+            {% for meal in day.meals.snack %}
+              <div class="meal-item-card">
+                <button type="button" class="meal-item-card__remove" onclick="removeMeal({{ meal.plan_id }})" title="Remove meal">&#x2715;</button>
+                <div class="meal-item-card__inner">
+                  <img src="{{ meal.image | recipe_img(meal.recipe_name, meal.cuisine) }}" alt="{{ meal.recipe_name }}" class="meal-item-card__thumb">
+                  <div class="meal-item-card__content">
+                    <div class="meal-item-card__title" title="{{ meal.recipe_name }}">
+                      <a href="{{ url_for('main.recipe_details', id=meal.recipe_id) }}">{{ meal.recipe_name }}</a>
+                    </div>
+                    <div class="meal-item-card__pills">
+                      <span class="meal-pill"><i class="fas fa-clock"></i> {{ meal.cook_time }}m</span>
+                      <span class="meal-pill">🔥 {{ meal.calories }} kcal</span>
+                      <span class="meal-pill">💪 {{ meal.protein }}g</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <button type="button" class="btn-add-slot" onclick="openAddModal('{{ day.date_str }}', 'snack', '{{ day.day_full }}')">
+              <i class="fas fa-plus"></i> Add Snack
+            </button>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Column Footer -->
+      <div class="day-column__footer">
+        <span>Daily Total</span>
+        <span><strong>{{ day.totals.calories }}</strong> kcal</span>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADD MEAL MODAL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="harna-modal-backdrop" id="addMealModal">
+  <div class="harna-modal">
+    <div class="harna-modal__header">
+      <h3 class="harna-modal__title" id="addMealModalTitle">Add Meal</h3>
+      <button type="button" class="harna-modal__close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <div class="harna-modal__body">
+      <input type="hidden" id="modalPlanDate">
+      <input type="hidden" id="modalMealType">
+
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="recipeSearchInput" placeholder="Search 25,000+ recipes (e.g. Dosa, Paneer, Upma, Chicken)..." oninput="debounceRecipeSearch()">
+      </div>
+
+      <div class="modal-results-list" id="modalSearchResults">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AUTO-FILL GENERATOR MODAL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="harna-modal-backdrop" id="generatorModal">
+  <div class="harna-modal">
+    <div class="harna-modal__header">
+      <h3 class="harna-modal__title"><i class="fas fa-magic" style="color:var(--harna-teal);"></i> Auto-Fill Weekly Plan</h3>
+      <button type="button" class="harna-modal__close" onclick="closeGeneratorModal()">&times;</button>
+    </div>
+    <div class="harna-modal__body">
+      <p style="color:var(--text-secondary); font-size:0.92rem; margin-top:0; margin-bottom:1.25rem;">
+        Harna's smart culinary intelligence will balance 28 delicious breakfast, lunch, dinner, and snack recipes for your week.
+      </p>
+
+      <div class="gen-form-group">
+        <label>Dietary Focus</label>
+        <div class="diet-pills">
+          <label class="diet-radio-label active" onclick="selectDietRadio(this)">
+            <input type="radio" name="genDiet" value="all" checked> All Authentic Recipes
+          </label>
+          <label class="diet-radio-label" onclick="selectDietRadio(this)">
+            <input type="radio" name="genDiet" value="vegetarian"> Pure Vegetarian
+          </label>
+          <label class="diet-radio-label" onclick="selectDietRadio(this)">
+            <input type="radio" name="genDiet" value="high_protein"> High Protein
+          </label>
+          <label class="diet-radio-label" onclick="selectDietRadio(this)">
+            <input type="radio" name="genDiet" value="quick"> Quick (<30m)
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button type="button" class="btn-outline" onclick="closeGeneratorModal()">Cancel</button>
+        <button type="button" class="btn-lime" id="btnSubmitGenerate" onclick="submitGenerateWeek()">
+          <i class="fas fa-sparkles"></i> Generate Full Week
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let searchTimeout = null;
+  const currentWeek = "{{ current_week_str }}";
+
+  function openAddModal(dateStr, mealType, dayName) {
+    document.getElementById('modalPlanDate').value = dateStr;
+    document.getElementById('modalMealType').value = mealType;
+    document.getElementById('addMealModalTitle').textContent = `Add ${mealType.charAt(0).toUpperCase() + mealType.slice(1)} (${dayName})`;
+    document.getElementById('recipeSearchInput').value = '';
+    document.getElementById('addMealModal').classList.add('active');
+    fetchRecipeSuggestions(mealType);
+  }
+
+  function closeAddModal() {
+    document.getElementById('addMealModal').classList.remove('active');
+  }
+
+  function openGeneratorModal() {
+    document.getElementById('generatorModal').classList.add('active');
+  }
+
+  function closeGeneratorModal() {
+    document.getElementById('generatorModal').classList.remove('active');
+  }
+
+  function selectDietRadio(el) {
+    document.querySelectorAll('.diet-radio-label').forEach(lbl => lbl.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function debounceRecipeSearch() {
+    clearTimeout(searchTimeout);
+    const q = document.getElementById('recipeSearchInput').value.trim();
+    const mealType = document.getElementById('modalMealType').value;
+    searchTimeout = setTimeout(() => {
+      fetchRecipeSuggestions(mealType, q);
+    }, 280);
+  }
+
+  async function fetchRecipeSuggestions(mealType, query = '') {
+    const container = document.getElementById('modalSearchResults');
+    container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Searching dishes...</div>';
+    try {
+      const res = await fetch(`/api/planner/search-recipes?meal_type=${mealType}&q=${encodeURIComponent(query)}&limit=15`);
+      const data = await res.json();
+      if (!data.success || !data.recipes.length) {
+        container.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">No matching recipes found. Try a different keyword!</div>';
+        return;
+      }
+
+      container.innerHTML = data.recipes.map(r => `
+        <div class="recipe-picker-item">
+          <img src="${r.image || 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=200&q=80'}" alt="${r.name}">
+          <div class="recipe-picker-item__info">
+            <div class="recipe-picker-item__name">${r.name}</div>
+            <div class="recipe-picker-item__meta">
+              <span><i class="fas fa-clock"></i> ${r.cook_time}m</span> &bull; 
+              <span>🔥 ${r.calories} kcal</span> &bull; 
+              <span>💪 ${r.protein}g protein</span>
+            </div>
+          </div>
+          <button type="button" class="recipe-picker-item__btn" onclick="addRecipeToPlan(${r.id})">
+            + Select
+          </button>
+        </div>
+      `).join('');
+    } catch (err) {
+      container.innerHTML = '<div style="text-align:center; padding:2rem; color:#DC2626;">Failed to load recipes. Please try again.</div>';
+    }
+  }
+
+  async function addRecipeToPlan(recipeId) {
+    const dateStr = document.getElementById('modalPlanDate').value;
+    const mealType = document.getElementById('modalMealType').value;
+    try {
+      const res = await fetch('/api/planner/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipe_id: recipeId,
+          date: dateStr,
+          meal_type: mealType,
+          servings: 2
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to add recipe');
+      }
+    } catch (err) {
+      alert('Error adding meal to plan');
+    }
+  }
+
+  async function removeMeal(planId) {
+    if (!confirm('Remove this recipe from your meal plan?')) return;
+    try {
+      const res = await fetch(`/api/planner/remove/${planId}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to remove meal');
+      }
+    } catch (err) {
+      alert('Error removing meal');
+    }
+  }
+
+  async function clearActiveWeek() {
+    if (!confirm('Clear all meals planned for this week?')) return;
+    try {
+      const res = await fetch('/api/planner/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ week: currentWeek })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      }
+    } catch (err) {
+      alert('Failed to clear week');
+    }
+  }
+
+  async function submitGenerateWeek() {
+    const checkedRadio = document.querySelector('input[name="genDiet"]:checked');
+    const diet = checkedRadio ? checkedRadio.value : 'all';
+    const btn = document.getElementById('btnSubmitGenerate');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/planner/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ diet: diet, week: currentWeek })
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to generate week');
+        btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate Full Week';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      alert('Error generating meal plan');
+      btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate Full Week';
+      btn.disabled = false;
+    }
+  }
+</script>
+{% endblock %}

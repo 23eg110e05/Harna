@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Grocery List — Harna{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ═══════════════════════════════════════════════════════════
+     HARNA SMART GROCERY LIST STYLES
+     ═══════════════════════════════════════════════════════════ */
+  .grocery-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+  }
+
+  .grocery-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .grocery-title-group h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+    margin: 0 0 0.35rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .grocery-title-group p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .grocery-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Recipe Contributors Ribbon */
+  .contributor-strip {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .contributor-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .contributor-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .contributor-pill {
+    background: var(--bg-surface-alt);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--harna-teal);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .contributor-pill:hover {
+    border-color: var(--harna-teal);
+    background: #FFFFFF;
+  }
+
+  /* Aisles Layout */
+  .aisle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .aisle-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .aisle-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .aisle-card__title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--harna-teal);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+  }
+
+  .aisle-card__count {
+    background: var(--harna-lime-subtle);
+    color: var(--harna-teal);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+  }
+
+  .grocery-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .grocery-checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    padding: 0.35rem 0.2rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .grocery-checklist-item:hover {
+    background: var(--bg-surface-alt);
+  }
+
+  .grocery-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-mid);
+    border-radius: 4px;
+    outline: none;
+    margin-top: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .grocery-checkbox:checked {
+    background: var(--harna-teal);
+    border-color: var(--harna-teal);
+  }
+
+  .grocery-checkbox:checked::after {
+    content: '\2713';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--harna-lime);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .grocery-checklist-item.checked span {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+
+  @media print {
+    .nav-sidebar, .mobile-nav-toggle, .grocery-actions, .contributor-strip, .ratvi-floating-btn {
+      display: none !important;
+    }
+    .app-shell { margin: 0 !important; }
+    .main-content { padding: 0 !important; }
+    .grocery-container { max-width: 100% !important; padding: 0 !important; }
+    .aisle-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grocery-container">
+
+  <!-- Header -->
+  <div class="grocery-header">
+    <div class="grocery-title-group">
+      <h1><i class="fas fa-shopping-basket" style="color:var(--harna-teal);"></i> Smart Grocery List</h1>
+      <p>Automated, aisle-sorted shopping list curated from your planned meals for {{ start_of_week.strftime('%b %d') }} – {{ end_of_week.strftime('%b %d, %Y') }}.</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="grocery-actions">
+      <a href="{{ url_for('main.meal_planner', week=current_week_str) }}" class="btn-outline">
+        <i class="fas fa-arrow-left"></i> Meal Planner
+      </a>
+      <button type="button" class="btn-outline" onclick="copyGroceryList()">
+        <i class="fas fa-copy"></i> Copy Text
+      </button>
+      <button type="button" class="btn-lime" onclick="window.print()">
+        <i class="fas fa-print"></i> Print List
+      </button>
+    </div>
+  </div>
+
+  {% if total_items == 0 %}
+    <div style="background:#FFFFFF; border:1px solid var(--border-light); border-radius:var(--radius-xl); padding:3.5rem 2rem; text-align:center;">
+      <i class="fas fa-calendar-times" style="font-size:3rem; color:var(--text-muted); margin-bottom:1rem;"></i>
+      <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--harna-teal); margin-bottom:0.5rem;">No Meals Planned for this Week</h3>
+      <p style="color:var(--text-secondary); max-width:440px; margin:0 auto 1.5rem;">Add recipes to your weekly planner or use one-click Auto-Fill to populate your shopping list.</p>
+      <a href="{{ url_for('main.meal_planner', week=current_week_str) }}" class="btn-lime">
+        <i class="fas fa-calendar-alt"></i> Go to Meal Planner
+      </a>
+    </div>
+  {% else %}
+
+    <!-- Contributing Recipes Ribbon -->
+    {% if recipes_summary %}
+    <div class="contributor-strip">
+      <div class="contributor-title">
+        <i class="fas fa-utensils"></i> Contributing Recipes ({{ recipes_summary|length }})
+      </div>
+      <div class="contributor-tags">
+        {% for r in recipes_summary %}
+          <a href="{{ url_for('main.recipe_details', id=r.id) }}" class="contributor-pill">
+            <i class="fas fa-check-circle" style="color:var(--harna-teal); font-size:0.75rem;"></i>
+            {{ r.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Aisle Cards Grid -->
+    <div class="aisle-grid">
+      {% for cat_id, aisle in aisles.items() %}
+        <div class="aisle-card">
+          <div class="aisle-card__header">
+            <h3 class="aisle-card__title">
+              <i class="fas {{ aisle.icon }}"></i> {{ aisle.title }}
+            </h3>
+            <span class="aisle-card__count">{{ aisle.ingredients|length }}</span>
+          </div>
+
+          <ul class="grocery-checklist">
+            {% for item in aisle.ingredients %}
+              <li class="grocery-checklist-item" onclick="toggleGroceryCheck(this, event)">
+                <input type="checkbox" class="grocery-checkbox" onclick="event.stopPropagation(); toggleItemClass(this);">
+                <span>{{ item }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% endif %}
+
+</div>
+
+<script>
+  function toggleGroceryCheck(li, e) {
+    const cb = li.querySelector('.grocery-checkbox');
+    cb.checked = !cb.checked;
+    toggleItemClass(cb);
+  }
+
+  function toggleItemClass(cb) {
+    const li = cb.closest('.grocery-checklist-item');
+    if (cb.checked) {
+      li.classList.add('checked');
+    } else {
+      li.classList.remove('checked');
+    }
+  }
+
+  function copyGroceryList() {
+    let text = "🛒 HARNA SMART GROCERY LIST\nWeek: {{ start_of_week.strftime('%b %d') }} - {{ end_of_week.strftime('%b %d, %Y') }}\n\n";
+    document.querySelectorAll('.aisle-card').forEach(card => {
+      const title = card.querySelector('.aisle-card__title').textContent.trim();
+      text += `--- ${title} ---\n`;
+      card.querySelectorAll('.grocery-checklist-item').forEach(item => {
+        const itemText = item.querySelector('span').textContent.trim();
+        const isDone = item.querySelector('.grocery-checkbox').checked ? "[✓]" : "[ ]";
+        text += `${isDone} ${itemText}\n`;
+      });
+      text += "\n";
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Grocery list copied to clipboard!');
+    }).catch(() => {
+      alert('Could not copy automatically. Please use the Print option.');
+    });
+  }
+</script>
+{% endblock %}

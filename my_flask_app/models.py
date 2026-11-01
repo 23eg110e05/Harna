@@ -1,15 +1,17 @@
 from . import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import date
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(80),nullable=False) #make all these fields required in html
-    email = db.Column(db.String(100),unique=True,nullable=False)
-    password = db.Column(db.String(150),nullable=False)
-    phone=db.Column(db.Integer)
-    gender=db.Column(db.String(6))
-    favourites = db.relationship('Favourite',backref='author',lazy=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False) #make all these fields required in html
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+    phone = db.Column(db.Integer)
+    gender = db.Column(db.String(6))
+    favourites = db.relationship('Favourite', backref='author', lazy=True)
+    meal_plans = db.relationship('MealPlan', backref='author', lazy=True, cascade='all, delete-orphan')
 
     def set_password(self, password):
         """Set the password to a hashed value."""
@@ -20,6 +22,15 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
 class Favourite(db.Model):
-    id=db.Column(db.Integer,primary_key=True)
-    user_id=db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
-    recipe_id=db.Column(db.Integer,nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, nullable=False)
+
+class MealPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, nullable=False)
+    plan_date = db.Column(db.Date, nullable=False)
+    meal_type = db.Column(db.String(20), nullable=False)  # 'breakfast', 'lunch', 'dinner', 'snack'
+    servings = db.Column(db.Integer, default=2)
+    notes = db.Column(db.String(255), nullable=True)

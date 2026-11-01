@@ -934,7 +934,7 @@ class RatviEngine:
                 "• **Find recipes** — *'Biryani'* or *'Egg and Onion'*\n\n"
                 "What would you like to cook today?"
             )
-            return {'success': True, 'reply': reply, 'intent': 'greeting',
+            return {'success': True, 'reply': reply, 'intent': 'general_chat',
                     'type': 'greeting', 'engine_used': 'deterministic', 'data': {},
                     'suggestions': ['Scale for 4 people', 'Substitute for butter', 'Show cooking steps']}
 

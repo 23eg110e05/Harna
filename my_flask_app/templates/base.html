@@ -118,6 +118,18 @@
               <span>Favourites</span>
             </a>
           </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.meal_planner') }}" class="nav-link {% if request.endpoint == 'main.meal_planner' %}active{% endif %}">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span>Meal Planner</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('main.planner_grocery') }}" class="nav-link {% if request.endpoint == 'main.planner_grocery' %}active{% endif %}">
+              <i class="fas fa-shopping-basket" aria-hidden="true"></i>
+              <span>Smart Grocery</span>
+            </a>
+          </li>
         </ul>
 
         <div class="nav-section-label" style="margin-top:1.25rem;">Account</div>
